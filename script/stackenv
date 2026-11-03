@@ -15,6 +15,10 @@ set +u
 source openrc admin admin
 set -u
 
+if [[ "${USE_SYSTEM_SCOPE:-}" == "true" ]]; then
+    # use system-scoped tokens
+    echo export OS_SYSTEM_SCOPE=all >> openrc
+fi
 # TODO: This should only be set when using project-scoped tokens (and we should
 # unsetting things like OS_PROJECT_NAME and OS_PROJECT_DOMAIN_ID when not using
 # these) but our tests require both which means we need to export both. This
@@ -55,17 +59,6 @@ export OS_FLAVOR_ID="$_FLAVOR_ID"
 export OS_FLAVOR_ID_RESIZE="$_FLAVOR_ALT_ID"
 EOL
 
-if _=$(openstack service list | grep database); then
-    _DB_DATASTORE_TYPE=$(openstack datastore list -f value -c Name | head -1)
-    if [[ -n "$_DB_DATASTORE_TYPE" ]]; then
-        _DB_DATASTORE_VERSION=$(openstack datastore version list "$_DB_DATASTORE_TYPE" -f value -c Name | head -1)
-        cat >> "openrc" <<EOL
-export OS_DB_DATASTORE_TYPE="$_DB_DATASTORE_TYPE"
-export OS_DB_DATASTORE_VERSION="$_DB_DATASTORE_VERSION"
-EOL
-    fi
-fi
-
 if _=$(openstack service list | grep container-infra); then
     _MAGNUM_IMAGE_ID=$(openstack image list --format value -c Name -c ID | grep ubuntu | cut -d ' ' -f 1 || true)
 
@@ -83,11 +76,5 @@ set +u
 # shellcheck disable=SC1091
 source openrc admin admin
 set -u
-
-# cannot overload auth options with conflicting scopes
-if [[ "${USE_SYSTEM_SCOPE:-}" == "true" ]]; then
-    export OS_SYSTEM_SCOPE=all
-    unset OS_PROJECT_NAME OS_PROJECT_DOMAIN_ID
-fi
 
 popd

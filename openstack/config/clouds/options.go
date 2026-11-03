@@ -7,12 +7,12 @@ import (
 )
 
 type cloudOpts struct {
-	cloudName           string
-	locations           map[cloudsType][]string
-	locationsOverridden map[cloudsType]bool
-	secureAsideLocation string
-	readers             map[cloudsType]io.Reader
-	readersOverridden   map[cloudsType]bool
+	cloudName              string
+	locations              []string
+	publicLocations        []string
+	cloudsyamlReader       io.Reader
+	secureyamlReader       io.Reader
+	cloudsPublicyamlReader io.Reader
 
 	applicationCredentialID     string
 	applicationCredentialName   string
@@ -51,17 +51,7 @@ func WithCloudName(osCloud string) ParseOption {
 // a file path pointing to a possible `clouds.yaml`.
 func WithLocations(locations ...string) ParseOption {
 	return func(co *cloudOpts) {
-		co.locations[cloudsDefault] = locations
-		co.locationsOverridden[cloudsDefault] = true
-	}
-}
-
-// WithSecureLocations is a functional option that sets the search locations for
-// secure.yaml file. Each location is a file path to a possible `secure.yaml`
-func WithSecureLocations(locations ...string) ParseOption {
-	return func(co *cloudOpts) {
-		co.locations[secure] = locations
-		co.locationsOverridden[secure] = true
+		co.locations = locations
 	}
 }
 
@@ -70,8 +60,7 @@ func WithSecureLocations(locations ...string) ParseOption {
 // `clouds-public.yaml`
 func WithPublicLocations(locations ...string) ParseOption {
 	return func(co *cloudOpts) {
-		co.locations[public] = locations
-		co.locationsOverridden[public] = true
+		co.publicLocations = locations
 	}
 }
 
@@ -81,27 +70,24 @@ func WithPublicLocations(locations ...string) ParseOption {
 // use in conjunction with WithSecureYAML.
 func WithCloudsYAML(clouds io.Reader) ParseOption {
 	return func(co *cloudOpts) {
-		co.readers[cloudsDefault] = clouds
-		co.readersOverridden[cloudsDefault] = true
+		co.cloudsyamlReader = clouds
 	}
 }
 
 // WithSecureYAML is a functional option that lets you pass a secure.yaml file
 // as an io.Reader interface, to complement the clouds.yaml that is either
 // fetched from the filesystem, or passed with WithCloudsYAML.
-func WithSecureYAML(clouds io.Reader) ParseOption {
+func WithSecureYAML(secure io.Reader) ParseOption {
 	return func(co *cloudOpts) {
-		co.readers[secure] = clouds
-		co.readersOverridden[secure] = true
+		co.secureyamlReader = secure
 	}
 }
 
 // WithCloudsPublicYAML is a functional option that lets you pass
 // clouds-public.yaml file as an io.Reader interface
-func WithCloudsPublicYAML(clouds io.Reader) ParseOption {
+func WithCloudsPublicYAML(public io.Reader) ParseOption {
 	return func(co *cloudOpts) {
-		co.readers[public] = clouds
-		co.readersOverridden[public] = true
+		co.cloudsPublicyamlReader = public
 	}
 }
 

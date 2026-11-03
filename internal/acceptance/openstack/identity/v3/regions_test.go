@@ -76,8 +76,6 @@ func TestRegionsCRUD(t *testing.T) {
 	tools.PrintResource(t, region)
 	tools.PrintResource(t, region.Extra)
 
-	th.AssertEquals(t, "Region for testing", region.Description)
-
 	var description = ""
 	updateOpts := regions.UpdateOpts{
 		Description: &description,

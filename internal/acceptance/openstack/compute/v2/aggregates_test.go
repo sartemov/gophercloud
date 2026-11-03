@@ -11,7 +11,6 @@ import (
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/internal/acceptance/clients"
 	"github.com/gophercloud/gophercloud/v2/internal/acceptance/tools"
-	"github.com/gophercloud/gophercloud/v2/internal/ptr"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/aggregates"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/hypervisors"
 	th "github.com/gophercloud/gophercloud/v2/testhelper"
@@ -48,8 +47,8 @@ func TestAggregatesCRUD(t *testing.T) {
 	tools.PrintResource(t, aggregate)
 
 	updateOpts := aggregates.UpdateOpts{
-		Name:             ptr.To("new_aggregate_name"),
-		AvailabilityZone: ptr.To("new_azone"),
+		Name:             "new_aggregate_name",
+		AvailabilityZone: "new_azone",
 	}
 
 	updatedAggregate, err := aggregates.Update(context.TODO(), client, aggregate.ID, updateOpts).Extract()

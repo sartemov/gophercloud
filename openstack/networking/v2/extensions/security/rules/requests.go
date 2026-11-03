@@ -126,13 +126,13 @@ type CreateOpts struct {
 	// The maximum port number in the range that is matched by the security group
 	// rule. The PortRangeMin attribute constrains the PortRangeMax attribute. If
 	// the protocol is ICMP, this value must be an ICMP code.
-	PortRangeMax *int `json:"port_range_max,omitempty"`
+	PortRangeMax int `json:"port_range_max,omitempty"`
 
 	// The minimum port number in the range that is matched by the security group
 	// rule. If the protocol is TCP or UDP, this value must be less than or equal
 	// to the value of the PortRangeMax attribute. If the protocol is ICMP, this
 	// value must be an ICMP type.
-	PortRangeMin *int `json:"port_range_min,omitempty"`
+	PortRangeMin int `json:"port_range_min,omitempty"`
 
 	// The protocol that is matched by the security group rule. Valid values are
 	// "tcp", "udp", "icmp" or an empty string.
@@ -179,7 +179,7 @@ func Create(ctx context.Context, c *gophercloud.ServiceClient, opts CreateOptsBu
 // As of Dalmatian (2024.2) neutron only allows bulk creation of rules when
 // they all belong to the same tenant and security group.
 // https://github.com/openstack/neutron/blob/6183792/neutron/db/securitygroups_db.py#L814-L828
-func CreateBulk[createOpts CreateOptsBuilder](ctx context.Context, c *gophercloud.ServiceClient, opts []createOpts) (r CreateBulkResult) {
+func CreateBulk(ctx context.Context, c *gophercloud.ServiceClient, opts []CreateOpts) (r CreateBulkResult) {
 	body, err := gophercloud.BuildRequestBody(opts, "security_group_rules")
 	if err != nil {
 		r.Err = err

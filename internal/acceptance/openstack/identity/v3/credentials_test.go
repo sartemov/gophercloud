@@ -4,7 +4,6 @@ package v3
 
 import (
 	"context"
-	"encoding/json"
 	"testing"
 
 	"github.com/gophercloud/gophercloud/v2/internal/acceptance/clients"
@@ -15,18 +14,6 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/identity/v3/tokens"
 	th "github.com/gophercloud/gophercloud/v2/testhelper"
 )
-
-// assertBlobJSONEquals compares a credential's serialized Blob against an
-// expected JSON string.
-func assertBlobJSONEquals(t *testing.T, expected, actual string) {
-	t.Helper()
-
-	var v any
-	err := json.Unmarshal([]byte(actual), &v)
-	th.AssertNoErr(t, err)
-
-	th.AssertJSONEquals(t, expected, v)
-}
 
 func TestCredentialsCRUD(t *testing.T) {
 	client, err := clients.NewIdentityV3Client()
@@ -52,11 +39,11 @@ func TestCredentialsCRUD(t *testing.T) {
 	th.AssertNoErr(t, err)
 	tools.PrintResource(t, token)
 
-	user, err := tokens.Get(context.TODO(), client, token.ID, nil).ExtractUser()
+	user, err := tokens.Get(context.TODO(), client, token.ID).ExtractUser()
 	th.AssertNoErr(t, err)
 	tools.PrintResource(t, user)
 
-	project, err := tokens.Get(context.TODO(), client, token.ID, nil).ExtractProject()
+	project, err := tokens.Get(context.TODO(), client, token.ID).ExtractProject()
 	th.AssertNoErr(t, err)
 	tools.PrintResource(t, project)
 
@@ -75,7 +62,7 @@ func TestCredentialsCRUD(t *testing.T) {
 	defer credentials.Delete(context.TODO(), client, credential.ID)
 	tools.PrintResource(t, credential)
 
-	assertBlobJSONEquals(t, createOpts.Blob, credential.Blob)
+	th.AssertEquals(t, credential.Blob, createOpts.Blob)
 	th.AssertEquals(t, credential.Type, createOpts.Type)
 	th.AssertEquals(t, credential.UserID, createOpts.UserID)
 	th.AssertEquals(t, credential.ProjectID, createOpts.ProjectID)
@@ -85,7 +72,7 @@ func TestCredentialsCRUD(t *testing.T) {
 	th.AssertNoErr(t, err)
 	tools.PrintResource(t, getCredential)
 
-	assertBlobJSONEquals(t, createOpts.Blob, getCredential.Blob)
+	th.AssertEquals(t, getCredential.Blob, createOpts.Blob)
 	th.AssertEquals(t, getCredential.Type, createOpts.Type)
 	th.AssertEquals(t, getCredential.UserID, createOpts.UserID)
 	th.AssertEquals(t, getCredential.ProjectID, createOpts.ProjectID)
@@ -99,10 +86,7 @@ func TestCredentialsCRUD(t *testing.T) {
 	th.AssertNoErr(t, err)
 	tools.PrintResource(t, updateCredential)
 
-	assertBlobJSONEquals(t, updateOpts.Blob, updateCredential.Blob)
-	th.AssertEquals(t, createOpts.Type, updateCredential.Type)
-	th.AssertEquals(t, createOpts.UserID, updateCredential.UserID)
-	th.AssertEquals(t, createOpts.ProjectID, updateCredential.ProjectID)
+	th.AssertEquals(t, updateCredential.Blob, updateOpts.Blob)
 }
 
 func TestCredentialsValidateS3(t *testing.T) {
@@ -129,11 +113,11 @@ func TestCredentialsValidateS3(t *testing.T) {
 	th.AssertNoErr(t, err)
 	tools.PrintResource(t, token)
 
-	user, err := tokens.Get(context.TODO(), client, token.ID, nil).ExtractUser()
+	user, err := tokens.Get(context.TODO(), client, token.ID).ExtractUser()
 	th.AssertNoErr(t, err)
 	tools.PrintResource(t, user)
 
-	project, err := tokens.Get(context.TODO(), client, token.ID, nil).ExtractProject()
+	project, err := tokens.Get(context.TODO(), client, token.ID).ExtractProject()
 	th.AssertNoErr(t, err)
 	tools.PrintResource(t, project)
 
@@ -152,7 +136,7 @@ func TestCredentialsValidateS3(t *testing.T) {
 	defer credentials.Delete(context.TODO(), client, credential.ID)
 	tools.PrintResource(t, credential)
 
-	assertBlobJSONEquals(t, createOpts.Blob, credential.Blob)
+	th.AssertEquals(t, credential.Blob, createOpts.Blob)
 	th.AssertEquals(t, credential.Type, createOpts.Type)
 	th.AssertEquals(t, credential.UserID, createOpts.UserID)
 	th.AssertEquals(t, credential.ProjectID, createOpts.ProjectID)

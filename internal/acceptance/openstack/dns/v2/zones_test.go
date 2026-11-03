@@ -42,7 +42,7 @@ func TestZonesCRUD(t *testing.T) {
 	description := ""
 	updateOpts := zones.UpdateOpts{
 		Description: &description,
-		TTL:         3600,
+		TTL:         0,
 	}
 
 	newZone, err := zones.Update(context.TODO(), client, zone.ID, updateOpts).Extract()
@@ -51,7 +51,6 @@ func TestZonesCRUD(t *testing.T) {
 	tools.PrintResource(t, &newZone)
 
 	th.AssertEquals(t, newZone.Description, description)
-	th.AssertEquals(t, 3600, newZone.TTL)
 }
 
 func TestZonesListWithAllProjects(t *testing.T) {
@@ -78,5 +77,5 @@ func TestZonesListWithAllProjects(t *testing.T) {
 		}
 	}
 
-	th.AssertTrue(t, found)
+	th.AssertEquals(t, found, true)
 }

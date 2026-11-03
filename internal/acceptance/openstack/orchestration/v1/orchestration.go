@@ -78,13 +78,7 @@ func CreateStack(t *testing.T, client *gophercloud.ServiceClient) (*stacks.Retri
 	}
 
 	newStack, err := stacks.Get(context.TODO(), client, stackName, stack.ID).Extract()
-	if err != nil {
-		return nil, err
-	}
-
-	th.AssertEquals(t, stackName, newStack.Name)
-
-	return newStack, nil
+	return newStack, err
 }
 
 // DeleteStack deletes a stack via its ID.

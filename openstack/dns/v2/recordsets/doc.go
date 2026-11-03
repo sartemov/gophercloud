@@ -15,7 +15,7 @@ Example to List RecordSets by Zone
 		panic(err)
 	}
 
-	allRRs, err := recordsets.ExtractRecordSets(allPages)
+	allRRs, err := recordsets.ExtractRecordSets(allPages()
 	if err != nil {
 		panic(err)
 	}
@@ -135,7 +135,7 @@ Example to Delete a RecordSet
 	zoneID := "fff121f5-c506-410a-a69e-2d73ef9cbdbd"
 	recordsetID := "d96ed01a-b439-4eb8-9b90-7a9f71017f7b"
 
-	err := recordsets.Delete(context.TODO(), dnsClient, zoneID, recordsetID, nil).ExtractErr()
+	err := recordsets.Delete(context.TODO(), dnsClient, zoneID, recordsetID).ExtractErr()
 	if err != nil {
 		panic(err)
 	}
@@ -145,7 +145,7 @@ Example to Delete a RecordSet across projects (admin)
 	zoneID := "fff121f5-c506-410a-a69e-2d73ef9cbdbd"
 	recordsetID := "d96ed01a-b439-4eb8-9b90-7a9f71017f7b"
 
-	err := recordsets.Delete(context.TODO(), dnsClient, zoneID, recordsetID, recordsets.DeleteOpts{AllProjects: true}).ExtractErr()
+	err := recordsets.DeleteWithOpts(context.TODO(), dnsClient, zoneID, recordsetID, recordsets.DeleteOpts{AllProjects: true}).ExtractErr()
 	if err != nil {
 		panic(err)
 	}

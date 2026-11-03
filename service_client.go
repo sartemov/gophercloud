@@ -133,9 +133,6 @@ func (client *ServiceClient) setMicroversionHeader(opts *RequestOpts) {
 	case "container-infrastructure-management", "container-infrastructure", "container-infra":
 		// magnum should accept container-infrastructure-management but (as of Epoxy) does not
 		serviceType = "container-infra"
-	case "application-container":
-		// zun expects "container" in the OpenStack-API-Version header
-		serviceType = "container"
 	}
 
 	if client.Type != "" {

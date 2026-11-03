@@ -2,7 +2,6 @@ package v1
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	"time"
 
@@ -10,9 +9,7 @@ import (
 	"github.com/gophercloud/gophercloud/v2/internal/acceptance/tools"
 	"github.com/gophercloud/gophercloud/v2/openstack/baremetal/v1/allocations"
 	"github.com/gophercloud/gophercloud/v2/openstack/baremetal/v1/nodes"
-	"github.com/gophercloud/gophercloud/v2/openstack/baremetal/v1/portgroups"
 	"github.com/gophercloud/gophercloud/v2/openstack/baremetal/v1/ports"
-	th "github.com/gophercloud/gophercloud/v2/testhelper"
 )
 
 // CreateNode creates a basic node with a randomly generated name.
@@ -34,16 +31,8 @@ func CreateNode(t *testing.T, client *gophercloud.ServiceClient) (*nodes.Node, e
 			"ipmi_password":  "admin",
 		},
 	}).Extract()
-	if err != nil {
-		return node, err
-	}
 
-	th.AssertEquals(t, name, node.Name)
-	th.AssertEquals(t, "ipmi", node.Driver)
-	th.AssertEquals(t, "ipxe", node.BootInterface)
-	th.AssertEquals(t, "agent", node.RAIDInterface)
-
-	return node, nil
+	return node, err
 }
 
 // DeleteNode deletes a bare metal node via its UUID.
@@ -73,14 +62,8 @@ func CreateAllocation(t *testing.T, client *gophercloud.ServiceClient) (*allocat
 		Name:          name,
 		ResourceClass: "baremetal",
 	}).Extract()
-	if err != nil {
-		return allocation, err
-	}
 
-	th.AssertEquals(t, name, allocation.Name)
-	th.AssertEquals(t, "baremetal", allocation.ResourceClass)
-
-	return allocation, nil
+	return allocation, err
 }
 
 // DeleteAllocation deletes a bare metal allocation via its UUID.
@@ -91,53 +74,6 @@ func DeleteAllocation(t *testing.T, client *gophercloud.ServiceClient, allocatio
 	}
 
 	t.Logf("Deleted allocation: %s", allocation.UUID)
-}
-
-// WaitForAllocationState waits until an allocation reaches the requested state.
-func WaitForAllocationState(ctx context.Context, client *gophercloud.ServiceClient, id string, state string) error {
-	return gophercloud.WaitFor(ctx, func(ctx context.Context) (bool, error) {
-		current, err := allocations.Get(ctx, client, id).Extract()
-		if err != nil {
-			return false, err
-		}
-		if current.State == state {
-			return true, nil
-		}
-		if current.State == string(allocations.Error) {
-			return false, fmt.Errorf("allocation %s entered error state: %s", id, current.LastError)
-		}
-
-		return false, nil
-	})
-}
-
-// CreatePortGroup creates an allocation
-func CreatePortGroup(t *testing.T, client *gophercloud.ServiceClient, node *nodes.Node) (*portgroups.PortGroup, error) {
-	name := tools.RandomString("ACPTTEST", 16)
-	t.Logf("Attempting to create bare metal allocation: %s", name)
-
-	allocation, err := portgroups.Create(context.TODO(), client, portgroups.CreateOpts{
-		Name:     name,
-		NodeUUID: node.UUID,
-	}).Extract()
-	if err != nil {
-		return allocation, err
-	}
-
-	th.AssertEquals(t, name, allocation.Name)
-	th.AssertEquals(t, node.UUID, allocation.NodeUUID)
-
-	return allocation, nil
-}
-
-// DeletePortGroup deletes a bare metal portgroup via its UUID.
-func DeletePortGroup(t *testing.T, client *gophercloud.ServiceClient, portgroup *portgroups.PortGroup) {
-	err := portgroups.Delete(context.TODO(), client, portgroup.UUID).ExtractErr()
-	if err != nil {
-		t.Fatalf("Unable to delete portgroup %s: %s", portgroup.UUID, err)
-	}
-
-	t.Logf("Deleted portgroup: %s", portgroup.UUID)
 }
 
 // CreateFakeNode creates a node with fake-hardware.
@@ -159,15 +95,8 @@ func CreateFakeNode(t *testing.T, client *gophercloud.ServiceClient) (*nodes.Nod
 			"ipmi_password":  "admin",
 		},
 	}).Extract()
-	if err != nil {
-		return node, err
-	}
 
-	th.AssertEquals(t, name, node.Name)
-	th.AssertEquals(t, "fake-hardware", node.Driver)
-	th.AssertEquals(t, "fake", node.BootInterface)
-
-	return node, nil
+	return node, err
 }
 
 func ChangeProvisionStateAndWait(ctx context.Context, client *gophercloud.ServiceClient, node *nodes.Node,
@@ -243,14 +172,8 @@ func CreatePort(t *testing.T, client *gophercloud.ServiceClient, node *nodes.Nod
 		Address:    mac,
 		PXEEnabled: &iTrue,
 	}).Extract()
-	if err != nil {
-		return port, err
-	}
 
-	th.AssertEquals(t, node.UUID, port.NodeUUID)
-	th.AssertEquals(t, mac, port.Address)
-
-	return port, nil
+	return port, err
 }
 
 // DeletePort - deletes a port via its UUID

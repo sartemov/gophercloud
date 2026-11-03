@@ -75,6 +75,7 @@ func (r commonResult) Extract() (*Task, error) {
 
 // TaskPage represents the results of a List request.
 type TaskPage struct {
+	serviceURL string
 	pagination.LinkedPageBase
 }
 
@@ -90,7 +91,7 @@ func (r TaskPage) IsEmpty() (bool, error) {
 
 // NextPageURL uses the response's embedded link reference to navigate to
 // the next page of results.
-func (r TaskPage) NextPageURL(endpointURL string) (string, error) {
+func (r TaskPage) NextPageURL() (string, error) {
 	var s struct {
 		Next string `json:"next"`
 	}
@@ -103,7 +104,7 @@ func (r TaskPage) NextPageURL(endpointURL string) (string, error) {
 		return "", nil
 	}
 
-	return nextPageURL(endpointURL, s.Next)
+	return nextPageURL(r.serviceURL, s.Next)
 }
 
 // ExtractTasks interprets the results of a single page from a List() call,

@@ -122,7 +122,7 @@ type SharePage struct {
 }
 
 // NextPageURL generates the URL for the page of results after this one.
-func (r SharePage) NextPageURL(endpointURL string) (string, error) {
+func (r SharePage) NextPageURL() (string, error) {
 	currentURL := r.URL
 	mark, err := r.Owner.LastMarker()
 	if err != nil {
@@ -281,9 +281,6 @@ type AccessRight struct {
 	State string `json:"state,omitempty"`
 	// The access rule ID.
 	ID string `json:"id"`
-	// Access rule metadata.
-	// Requires microversion 2.45 or later.
-	Metadata map[string]string `json:"metadata,omitempty"`
 }
 
 // Extract will get the GrantAccess object from the commonResult

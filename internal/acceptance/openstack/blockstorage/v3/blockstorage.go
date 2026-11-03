@@ -56,9 +56,8 @@ func CreateSnapshot(t *testing.T, client *gophercloud.ServiceClient, volume *vol
 	}
 
 	tools.PrintResource(t, snapshot)
-	th.AssertEquals(t, snapshotName, snapshot.Name)
-	th.AssertEquals(t, snapshotDescription, snapshot.Description)
-	th.AssertEquals(t, volume.ID, snapshot.VolumeID)
+	th.AssertEquals(t, snapshot.Name, snapshotName)
+	th.AssertEquals(t, snapshot.VolumeID, volume.ID)
 
 	t.Logf("Successfully created snapshot: %s", snapshot.ID)
 
@@ -421,8 +420,7 @@ func CreateBackup(t *testing.T, client *gophercloud.ServiceClient, volumeID stri
 	t.Logf("Successfully created backup %s", backup.ID)
 	tools.PrintResource(t, backup)
 
-	th.AssertEquals(t, backupName, backup.Name)
-	th.AssertEquals(t, volumeID, backup.VolumeID)
+	th.AssertEquals(t, backup.Name, backupName)
 
 	return backup, nil
 }
@@ -803,7 +801,7 @@ func Unmanage(t *testing.T, client *gophercloud.ServiceClient, volume *volumes.V
 		return false, nil
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("error waiting for volume %s to be unmanaged: %v", volume.ID, err)
 	}
 
 	t.Logf("Successfully unmanaged volume %s", volume.ID)

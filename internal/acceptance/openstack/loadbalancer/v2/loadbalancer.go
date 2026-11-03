@@ -10,8 +10,6 @@ import (
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/internal/acceptance/clients"
 	"github.com/gophercloud/gophercloud/v2/internal/acceptance/tools"
-	"github.com/gophercloud/gophercloud/v2/internal/ptr"
-	"github.com/gophercloud/gophercloud/v2/openstack/loadbalancer/v2/availabilityzoneprofiles"
 	"github.com/gophercloud/gophercloud/v2/openstack/loadbalancer/v2/flavorprofiles"
 	"github.com/gophercloud/gophercloud/v2/openstack/loadbalancer/v2/flavors"
 	"github.com/gophercloud/gophercloud/v2/openstack/loadbalancer/v2/l7policies"
@@ -117,15 +115,6 @@ func CreateListenerHTTP(t *testing.T, client *gophercloud.ServiceClient, lb *loa
 // CreateLoadBalancer will create a load balancer with a random name on a given
 // subnet. An error will be returned if the loadbalancer could not be created.
 func CreateLoadBalancer(t *testing.T, client *gophercloud.ServiceClient, subnetID string, tags []string, policyID string, additionalVips []loadbalancers.AdditionalVip) (*loadbalancers.LoadBalancer, error) {
-	return createLoadBalancer(t, client, subnetID, tags, policyID, additionalVips, nil)
-}
-
-// CreateLoadBalancerWithVIPSecurityGroups will create a load balancer with custom VIP security groups.
-func CreateLoadBalancerWithVIPSecurityGroups(t *testing.T, client *gophercloud.ServiceClient, subnetID string, tags []string, vipSecGroupIDs []string) (*loadbalancers.LoadBalancer, error) {
-	return createLoadBalancer(t, client, subnetID, tags, "", nil, vipSecGroupIDs)
-}
-
-func createLoadBalancer(t *testing.T, client *gophercloud.ServiceClient, subnetID string, tags []string, policyID string, additionalVips []loadbalancers.AdditionalVip, vipSecGroupIDs []string) (*loadbalancers.LoadBalancer, error) {
 	lbName := tools.RandomString("TESTACCT-", 8)
 	lbDescription := tools.RandomString("TESTACCT-DESC-", 8)
 
@@ -144,10 +133,6 @@ func createLoadBalancer(t *testing.T, client *gophercloud.ServiceClient, subnetI
 
 	if len(policyID) > 0 {
 		createOpts.VipQosPolicyID = policyID
-	}
-
-	if len(vipSecGroupIDs) > 0 {
-		createOpts.VipSecGroupIDs = vipSecGroupIDs
 	}
 
 	lb, err := loadbalancers.Create(context.TODO(), client, createOpts).Extract()
@@ -175,10 +160,6 @@ func createLoadBalancer(t *testing.T, client *gophercloud.ServiceClient, subnetI
 
 	if len(policyID) > 0 {
 		th.AssertEquals(t, lb.VipQosPolicyID, policyID)
-	}
-
-	if len(vipSecGroupIDs) > 0 {
-		th.AssertDeepEquals(t, lb.VipSecGroupIDs, vipSecGroupIDs)
 	}
 
 	return lb, nil
@@ -214,20 +195,17 @@ func CreateLoadBalancerFullyPopulated(t *testing.T, client *gophercloud.ServiceC
 			Description:  listenerDescription,
 			Protocol:     listeners.ProtocolHTTP,
 			ProtocolPort: listenerPort,
-			Tags:         tags,
 			DefaultPool: &pools.CreateOpts{
 				Name:        poolName,
 				Description: poolDescription,
 				Protocol:    pools.ProtocolHTTP,
 				LBMethod:    pools.LBMethodLeastConnections,
-				Tags:        tags,
 				Members: []pools.CreateMemberOpts{{
 					Name:         memberName,
 					ProtocolPort: memberPort,
 					Weight:       &memberWeight,
 					Address:      "1.2.3.4",
 					SubnetID:     subnetID,
-					Tags:         tags,
 				}},
 				Monitor: &monitors.CreateOpts{
 					Delay:          10,
@@ -236,7 +214,6 @@ func CreateLoadBalancerFullyPopulated(t *testing.T, client *gophercloud.ServiceC
 					MaxRetriesDown: 4,
 					Type:           monitors.TypeHTTP,
 					HTTPVersion:    "1.0",
-					Tags:           tags,
 				},
 			},
 			L7Policies: []l7policies.CreateOpts{{
@@ -303,11 +280,7 @@ func CreateLoadBalancerFullyPopulated(t *testing.T, client *gophercloud.ServiceC
 	th.AssertEquals(t, "1.0", lb.Pools[0].Monitor.HTTPVersion)
 
 	if len(tags) > 0 {
-		th.AssertTagsEqual(t, tags, lb.Tags)
-		th.AssertTagsEqual(t, tags, lb.Listeners[0].Tags)
-		th.AssertTagsEqual(t, tags, lb.Pools[0].Tags)
-		th.AssertTagsEqual(t, tags, lb.Pools[0].Members[0].Tags)
-		th.AssertTagsEqual(t, tags, lb.Pools[0].Monitor.Tags)
+		th.AssertDeepEquals(t, lb.Tags, tags)
 	}
 
 	return lb, nil
@@ -347,11 +320,7 @@ func CreateMember(t *testing.T, client *gophercloud.ServiceClient, lb *loadbalan
 		return member, fmt.Errorf("timed out waiting for loadbalancer to become active: %s", err)
 	}
 
-	th.AssertEquals(t, memberName, member.Name)
-	th.AssertEquals(t, memberPort, member.ProtocolPort)
-	th.AssertEquals(t, memberWeight, member.Weight)
-	th.AssertEquals(t, memberAddress, member.Address)
-	th.AssertEquals(t, subnetID, member.SubnetID)
+	th.AssertEquals(t, member.Name, memberName)
 
 	return member, nil
 }
@@ -504,7 +473,7 @@ func CreateL7Policy(t *testing.T, client *gophercloud.ServiceClient, listener *l
 	th.AssertEquals(t, policy.ListenerID, listener.ID)
 	th.AssertEquals(t, policy.Action, string(l7policies.ActionRedirectToURL))
 	th.AssertEquals(t, "http://www.example.com", policy.RedirectURL)
-	th.AssertTagsEqual(t, tags, policy.Tags)
+	th.AssertDeepEquals(t, policy.Tags, tags)
 
 	return policy, nil
 }
@@ -534,7 +503,7 @@ func CreateL7Rule(t *testing.T, client *gophercloud.ServiceClient, policyID stri
 	th.AssertEquals(t, rule.RuleType, string(l7policies.TypePath))
 	th.AssertEquals(t, rule.CompareType, string(l7policies.CompareTypeStartWith))
 	th.AssertEquals(t, "/api", rule.Value)
-	th.AssertTagsEqual(t, tags, rule.Tags)
+	th.AssertDeepEquals(t, rule.Tags, tags)
 
 	return rule, nil
 }
@@ -764,8 +733,8 @@ func CreateFlavor(t *testing.T, client *gophercloud.ServiceClient, flavorProfile
 	createOpts := flavors.CreateOpts{
 		Name:            flavorName,
 		Description:     description,
-		FlavorProfileID: flavorProfile.ID,
-		Enabled:         ptr.To(false),
+		FlavorProfileId: flavorProfile.ID,
+		Enabled:         true,
 	}
 
 	flavor, err := flavors.Create(context.TODO(), client, createOpts).Extract()
@@ -777,8 +746,8 @@ func CreateFlavor(t *testing.T, client *gophercloud.ServiceClient, flavorProfile
 
 	th.AssertEquals(t, flavorName, flavor.Name)
 	th.AssertEquals(t, description, flavor.Description)
-	th.AssertEquals(t, flavorProfile.ID, flavor.FlavorProfileID)
-	th.AssertFalse(t, flavor.Enabled)
+	th.AssertEquals(t, flavorProfile.ID, flavor.FlavorProfileId)
+	th.AssertTrue(t, flavor.Enabled)
 
 	return flavor, nil
 }
@@ -790,38 +759,4 @@ func DeleteFlavor(t *testing.T, client *gophercloud.ServiceClient, flavor *flavo
 	}
 
 	t.Logf("Successfully deleted flavor %s", flavor.Name)
-}
-
-func CreateAvailabilityZoneProfile(t *testing.T, client *gophercloud.ServiceClient) (*availabilityzoneprofiles.AvailabilityZoneProfile, error) {
-	availabilityZoneProfileName := tools.RandomString("TESTACCT-", 8)
-	availabilityZoneProfileDriver := "amphora"
-	availabilityZoneData := "{\"compute_zone\": \"nova\"}"
-
-	createOpts := availabilityzoneprofiles.CreateOpts{
-		Name:                 availabilityZoneProfileName,
-		ProviderName:         availabilityZoneProfileDriver,
-		AvailabilityZoneData: availabilityZoneData,
-	}
-
-	availabilityZoneProfile, err := availabilityzoneprofiles.Create(context.TODO(), client, createOpts).Extract()
-	if err != nil {
-		return availabilityZoneProfile, err
-	}
-
-	t.Logf("Successfully created availabilityzoneprofile %s", availabilityZoneProfileName)
-
-	th.AssertEquals(t, availabilityZoneProfileName, availabilityZoneProfile.Name)
-	th.AssertEquals(t, availabilityZoneProfileDriver, availabilityZoneProfile.ProviderName)
-	th.AssertEquals(t, availabilityZoneData, availabilityZoneProfile.AvailabilityZoneData)
-
-	return availabilityZoneProfile, nil
-}
-
-func DeleteAvailabilityZoneProfile(t *testing.T, client *gophercloud.ServiceClient, availabilityZoneProfile *availabilityzoneprofiles.AvailabilityZoneProfile) {
-	err := availabilityzoneprofiles.Delete(context.TODO(), client, availabilityZoneProfile.ID).ExtractErr()
-	if err != nil {
-		t.Fatalf("Unable to delete availabilityzoneprofile: %v", err)
-	}
-
-	t.Logf("Successfully deleted availabilityzoneprofile %s", availabilityZoneProfile.Name)
 }

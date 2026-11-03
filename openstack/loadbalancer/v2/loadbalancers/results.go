@@ -50,10 +50,6 @@ type LoadBalancer struct {
 	// The ID of the QoS Policy which will apply to the Virtual IP
 	VipQosPolicyID string `json:"vip_qos_policy_id"`
 
-	// The IDs of the Security Groups which apply to the Virtual IP.
-	// Requires Octavia API version 2.29 or later (OpenStack 2025.1).
-	VipSecGroupIDs []string `json:"vip_sg_ids"`
-
 	// The unique ID for the LoadBalancer.
 	ID string `json:"id"`
 
@@ -162,7 +158,7 @@ type LoadBalancerPage struct {
 // NextPageURL is invoked when a paginated collection of load balancers has
 // reached the end of a page and the pager seeks to traverse over a new one.
 // In order to do this, it needs to construct the next page's URL.
-func (r LoadBalancerPage) NextPageURL(endpointURL string) (string, error) {
+func (r LoadBalancerPage) NextPageURL() (string, error) {
 	var s struct {
 		Links []gophercloud.Link `json:"loadbalancers_links"`
 	}

@@ -359,7 +359,7 @@ func (r NodePage) IsEmpty() (bool, error) {
 
 // NextPageURL uses the response's embedded link reference to navigate to the
 // next page of results.
-func (r NodePage) NextPageURL(endpointURL string) (string, error) {
+func (r NodePage) NextPageURL() (string, error) {
 	var s struct {
 		Links []gophercloud.Link `json:"nodes_links"`
 	}

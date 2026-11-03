@@ -185,21 +185,8 @@ type UpdateInventoriesOptsBuilder interface {
 	ToResourceProviderUpdateInventoriesMap() (map[string]any, error)
 }
 
-// InventoryUpdateBase contains inventory fields shared by update operations.
-type InventoryUpdateBase struct {
-	AllocationRatio *float32 `json:"allocation_ratio,omitempty"`
-	MaxUnit         *int     `json:"max_unit,omitempty"`
-	MinUnit         *int     `json:"min_unit,omitempty"`
-	Reserved        *int     `json:"reserved,omitempty"`
-	StepSize        *int     `json:"step_size,omitempty"`
-	Total           int      `json:"total"`
-}
-
 // UpdateInventoriesOpts represents options used to update all inventories of a resource provider.
-type UpdateInventoriesOpts struct {
-	ResourceProviderGeneration int                            `json:"resource_provider_generation"`
-	Inventories                map[string]InventoryUpdateBase `json:"inventories"`
-}
+type UpdateInventoriesOpts = ResourceProviderInventories
 
 // ToResourceProviderUpdateInventoriesMap constructs a request body from UpdateInventoriesOpts.
 func (opts UpdateInventoriesOpts) ToResourceProviderUpdateInventoriesMap() (map[string]any, error) {
@@ -235,10 +222,7 @@ type UpdateInventoryOptsBuilder interface {
 }
 
 // UpdateInventoryOpts represents options used to update one inventory of a resource provider.
-type UpdateInventoryOpts struct {
-	ResourceProviderGeneration int `json:"resource_provider_generation"`
-	InventoryUpdateBase
-}
+type UpdateInventoryOpts = ResourceProviderInventory
 
 // ToResourceProviderUpdateInventoryMap constructs a request body from UpdateInventoryOpts.
 func (opts UpdateInventoryOpts) ToResourceProviderUpdateInventoryMap() (map[string]any, error) {

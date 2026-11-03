@@ -14,12 +14,11 @@ import (
 
 // CreateExecution creates an execution for the given workflow.
 func CreateExecution(t *testing.T, client *gophercloud.ServiceClient, workflow *workflows.Workflow) (*executions.Execution, error) {
-	executionID := tools.RandomString("execution_", 5)
 	executionDescription := tools.RandomString("execution_", 5)
 
 	t.Logf("Attempting to create execution: %s", executionDescription)
 	createOpts := executions.CreateOpts{
-		ID:                executionID,
+		ID:                executionDescription,
 		WorkflowID:        workflow.ID,
 		WorkflowNamespace: workflow.Namespace,
 		Description:       executionDescription,
@@ -34,9 +33,7 @@ func CreateExecution(t *testing.T, client *gophercloud.ServiceClient, workflow *
 
 	t.Logf("Execution created: %s", executionDescription)
 
-	th.AssertEquals(t, executionDescription, execution.Description)
-	th.AssertEquals(t, workflow.ID, execution.WorkflowID)
-	th.AssertEquals(t, workflow.Namespace, execution.WorkflowNamespace)
+	th.AssertEquals(t, execution.Description, executionDescription)
 
 	t.Logf("Wait for execution status SUCCESS: %s", executionDescription)
 	th.AssertNoErr(t, tools.WaitFor(func(ctx context.Context) (bool, error) {

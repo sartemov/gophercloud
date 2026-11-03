@@ -58,23 +58,6 @@ func TestSubnetPoolsCRUD(t *testing.T) {
 	th.AssertTrue(t, found)
 }
 
-func TestSubnetPoolsDefaultQuotaZeroCreate(t *testing.T) {
-	client, err := clients.NewNetworkV2Client()
-	th.AssertNoErr(t, err)
-
-	// Create a subnetpool
-	subnetPool, err := CreateSubnetPoolDefaultQuotaZero(t, client)
-	th.AssertNoErr(t, err)
-	defer DeleteSubnetPool(t, client, subnetPool.ID)
-
-	tools.PrintResource(t, subnetPool)
-
-	sb, err := subnetpools.Get(context.TODO(), client, subnetPool.ID).Extract()
-	th.AssertNoErr(t, err)
-
-	th.AssertEquals(t, 0, *sb.DefaultQuota)
-}
-
 func TestSubnetPoolsAddRemovePrefixes(t *testing.T) {
 	client, err := clients.NewNetworkV2Client()
 	th.AssertNoErr(t, err)

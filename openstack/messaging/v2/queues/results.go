@@ -14,6 +14,7 @@ type commonResult struct {
 
 // QueuePage contains a single page of all queues from a List operation.
 type QueuePage struct {
+	serviceURL string
 	pagination.LinkedPageBase
 }
 
@@ -160,7 +161,7 @@ func (r QueuePage) IsEmpty() (bool, error) {
 
 // NextPageURL uses the response's embedded link reference to navigate to the
 // next page of results.
-func (r QueuePage) NextPageURL(endpointURL string) (string, error) {
+func (r QueuePage) NextPageURL() (string, error) {
 	var s struct {
 		Links []gophercloud.Link `json:"links"`
 	}
@@ -173,7 +174,7 @@ func (r QueuePage) NextPageURL(endpointURL string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return nextPageURL(endpointURL, next)
+	return nextPageURL(r.serviceURL, next)
 }
 
 // GetCount value if it request was supplied `WithCount` param

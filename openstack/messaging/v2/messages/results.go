@@ -12,6 +12,7 @@ type CreateResult struct {
 
 // MessagePage contains a single page of all clusters from a ListDetails call.
 type MessagePage struct {
+	serviceURL string
 	pagination.LinkedPageBase
 }
 
@@ -114,7 +115,7 @@ func (r MessagePage) IsEmpty() (bool, error) {
 
 // NextPageURL uses the response's embedded link reference to navigate to the
 // next page of results.
-func (r MessagePage) NextPageURL(endpointURL string) (string, error) {
+func (r MessagePage) NextPageURL() (string, error) {
 	var s struct {
 		Links []gophercloud.Link `json:"links"`
 	}
@@ -127,5 +128,5 @@ func (r MessagePage) NextPageURL(endpointURL string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return nextPageURL(endpointURL, next)
+	return nextPageURL(r.serviceURL, next)
 }

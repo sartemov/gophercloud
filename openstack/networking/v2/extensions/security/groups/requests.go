@@ -8,12 +8,6 @@ import (
 	"github.com/gophercloud/gophercloud/v2/pagination"
 )
 
-// ListOptsBuilder allows extensions to add additional parameters to the
-// List request.
-type ListOptsBuilder interface {
-	ToSecGroupListQuery() (string, error)
-}
-
 // ListOpts allows the filtering and sorting of paginated collections through
 // the API. Filtering is achieved by passing in struct field values that map to
 // the group attributes you want to see returned. SortKey allows you to
@@ -37,25 +31,16 @@ type ListOpts struct {
 	RevisionNumber *int   `q:"revision_number"`
 }
 
-// ToPortListQuery formats a ListOpts into a query string.
-func (opts ListOpts) ToSecGroupListQuery() (string, error) {
-	q, err := gophercloud.BuildQueryString(opts)
-	return q.String(), err
-}
-
 // List returns a Pager which allows you to iterate over a collection of
 // security groups. It accepts a ListOpts struct, which allows you to filter
 // and sort the returned collection for greater efficiency.
-func List(c *gophercloud.ServiceClient, opts ListOptsBuilder) pagination.Pager {
-	url := rootURL(c)
-	if opts != nil {
-		query, err := opts.ToSecGroupListQuery()
-		if err != nil {
-			return pagination.Pager{Err: err}
-		}
-		url += query
+func List(c *gophercloud.ServiceClient, opts ListOpts) pagination.Pager {
+	q, err := gophercloud.BuildQueryString(&opts)
+	if err != nil {
+		return pagination.Pager{Err: err}
 	}
-	return pagination.NewPager(c, url, func(r pagination.PageResult) pagination.Page {
+	u := rootURL(c) + q.String()
+	return pagination.NewPager(c, u, func(r pagination.PageResult) pagination.Page {
 		return SecGroupPage{pagination.LinkedPageBase{PageResult: r}}
 	})
 }
@@ -114,7 +99,7 @@ type UpdateOptsBuilder interface {
 // group.
 type UpdateOpts struct {
 	// Human-readable name for the Security Group. Does not have to be unique.
-	Name *string `json:"name,omitempty"`
+	Name string `json:"name,omitempty"`
 
 	// Describes the security group.
 	Description *string `json:"description,omitempty"`

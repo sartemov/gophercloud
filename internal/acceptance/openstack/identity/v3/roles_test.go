@@ -77,8 +77,6 @@ func TestRolesCRUD(t *testing.T) {
 	tools.PrintResource(t, role)
 	tools.PrintResource(t, role.Extra)
 
-	th.AssertEquals(t, "test description", role.Description)
-
 	listOpts := roles.ListOpts{
 		DomainID: "default",
 	}
@@ -473,9 +471,8 @@ func TestRoleListAssignmentForUserOnDomain(t *testing.T) {
 	th.AssertNoErr(t, err)
 	defer DeleteDomain(t, client, domain.ID)
 
-	// The role must be created in the same domain it is being assigned to.
 	roleCreateOpts := roles.CreateOpts{
-		DomainID: domain.ID,
+		DomainID: "default",
 	}
 	role, err := CreateRole(t, client, &roleCreateOpts)
 	th.AssertNoErr(t, err)
@@ -604,9 +601,8 @@ func TestRoleListAssignmentForGroupOnDomain(t *testing.T) {
 	th.AssertNoErr(t, err)
 	defer DeleteDomain(t, client, domain.ID)
 
-	// The role must be created in the same domain it is being assigned to.
 	roleCreateOpts := roles.CreateOpts{
-		DomainID: domain.ID,
+		DomainID: "default",
 	}
 	role, err := CreateRole(t, client, &roleCreateOpts)
 	th.AssertNoErr(t, err)
@@ -743,9 +739,8 @@ func TestRolesAssignToUserOnDomain(t *testing.T) {
 	th.AssertNoErr(t, err)
 	defer DeleteDomain(t, client, domain.ID)
 
-	// The role must be created in the same domain it is being assigned to.
 	roleCreateOpts := roles.CreateOpts{
-		DomainID: domain.ID,
+		DomainID: "default",
 	}
 	role, err := CreateRole(t, client, &roleCreateOpts)
 	th.AssertNoErr(t, err)
@@ -817,9 +812,8 @@ func TestRolesAssignToGroupOnDomain(t *testing.T) {
 	th.AssertNoErr(t, err)
 	defer DeleteDomain(t, client, domain.ID)
 
-	// The role must be created in the same domain it is being assigned to.
 	roleCreateOpts := roles.CreateOpts{
-		DomainID: domain.ID,
+		DomainID: "default",
 	}
 	role, err := CreateRole(t, client, &roleCreateOpts)
 	th.AssertNoErr(t, err)

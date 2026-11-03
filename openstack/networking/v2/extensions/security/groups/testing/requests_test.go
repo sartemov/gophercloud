@@ -90,8 +90,7 @@ func TestUpdate(t *testing.T) {
 			fmt.Fprint(w, SecurityGroupUpdateResponse)
 		})
 
-	name := "newer-webservers"
-	opts := groups.UpdateOpts{Name: &name}
+	opts := groups.UpdateOpts{Name: "newer-webservers"}
 	sg, err := groups.Update(context.TODO(), fake.ServiceClient(fakeServer), "2076db17-a522-4506-91de-c6dd8e837028", opts).Extract()
 	th.AssertNoErr(t, err)
 

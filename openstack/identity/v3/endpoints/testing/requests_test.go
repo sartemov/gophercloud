@@ -236,11 +236,10 @@ func TestUpdateEndpoint(t *testing.T) {
 	})
 
 	enabled := false
-	description := "Changed description"
 	actual, err := endpoints.Update(context.TODO(), client.ServiceClient(fakeServer), "12", endpoints.UpdateOpts{
 		Name:        "renamed",
 		Region:      "somewhere-else",
-		Description: &description,
+		Description: "Changed description",
 		Enabled:     &enabled,
 	}).Extract()
 	if err != nil {

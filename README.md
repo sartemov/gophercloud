@@ -1,13 +1,12 @@
 # Gophercloud: an OpenStack SDK for Go
-[![Coverage Status](https://coveralls.io/repos/github/gophercloud/gophercloud/badge.svg?branch=main)](https://coveralls.io/github/gophercloud/gophercloud?branch=main)
+[![Coverage Status](https://coveralls.io/repos/github/gophercloud/gophercloud/badge.svg?branch=master)](https://coveralls.io/github/gophercloud/gophercloud?branch=master)
 
 Gophercloud is a Go SDK for OpenStack.
 
 Join us on kubernetes slack, on [#gophercloud](https://kubernetes.slack.com/archives/C05G4NJ6P6X). Visit [slack.k8s.io](https://slack.k8s.io) for an invitation.
 
 > **Note**
-> This branch contains the current development version of Gophercloud (`v3`).
-> Backward-compatible changes are backported to the current stable branch `v2`.
+> This branch contains the current stable branch of Gophercloud: `v2`.
 > The legacy stable version can be found in the `v1` branch.
 
 ## How to install
@@ -97,9 +96,9 @@ func main() {
 
 	// Use the ProviderClient and the endpoint options fetched from
 	// `clouds.yaml` to build a service client: a compute client in this
-	// case. The constructor accepts a `context.Context` for endpoint
-	// resolution, cancellation, and tracing.
-	computeClient, err := openstack.NewComputeV2(ctx, providerClient, endpointOptions)
+	// case. Note that the contructor does not accept a `context.Context`:
+	// no further call to the OpenStack API is needed at this stage.
+	computeClient, err := openstack.NewComputeV2(providerClient, endpointOptions)
 	if err != nil {
 		panic(err)
 	}
@@ -136,7 +135,7 @@ func main() {
 		panic(err)
 	}
 
-	computeClient, err := openstack.NewComputeV2(ctx, providerClient, gophercloud.EndpointOpts{
+	computeClient, err := openstack.NewComputeV2(providerClient, gophercloud.EndpointOpts{
 		Region: os.Getenv("OS_REGION_NAME"),
 	})
 	if err != nil {
@@ -166,7 +165,7 @@ func main() {
 	ctx := context.Background()
 
 	providerClient, err := openstack.AuthenticatedClient(ctx, gophercloud.AuthOptions{
-		IdentityEndpoint: "https://openstack.example.com:5000/v3",
+		IdentityEndpoint: "https://openstack.example.com:5000/v2.0",
 		Username:         "username",
 		Password:         "password",
 	})
@@ -174,7 +173,7 @@ func main() {
 		panic(err)
 	}
 
-	computeClient, err := openstack.NewComputeV2(ctx, providerClient, gophercloud.EndpointOpts{
+	computeClient, err := openstack.NewComputeV2(providerClient, gophercloud.EndpointOpts{
 		Region: "RegionName",
 	})
 	if err != nil {
@@ -202,7 +201,7 @@ func main() {
         Name:      "My new server!",
         FlavorRef: "flavor_id",
         ImageRef:  "image_id",
-    }, nil).Extract()
+    }).Extract()
 
     // [...]
 ```
@@ -228,13 +227,9 @@ The above code sample creates a new server with the parameters, and returns a
 |      Key Management      |     Barbican     |       `openstack/keymanager`       |    ✔    |    ✔    |
 |      Load Balancing      |      Octavia     |      `openstack/loadbalancer`      |    ✔    |    ✔    |
 |         Messaging        |       Zaqar      |        `openstack/messaging`       |    ✔    |    ✔    |
-|          Metric          |      Aetos       |         `openstack/metric`         |    ✘    |    ✔    |
 |        Networking        |      Neutron     |       `openstack/networking`       |    ✔    |    ✔    |
 |      Object Storage      |       Swift      |      `openstack/objectstorage`     |    ✔    |    ✔    |
-|      Orchestration       |       Heat       |     `openstack/orchestration`      |    ✔    |    ✔    |
-|        Placement         |    Placement     |       `openstack/placement`        |    ✔    |    ✔    |
 |   Shared File Systems    |      Manila      |   `openstack/sharedfilesystems`    |    ✔    |    ✔    |
-|         Workflow         |      Mistral     |        `openstack/workflow`        |    ✔    |    ✔    |
 
 ## Advanced Usage
 

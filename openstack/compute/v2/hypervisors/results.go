@@ -256,7 +256,7 @@ func (page HypervisorPage) IsEmpty() (bool, error) {
 
 // NextPageURL uses the response's embedded link reference to navigate to the
 // next page of results.
-func (page HypervisorPage) NextPageURL(endpointURL string) (string, error) {
+func (page HypervisorPage) NextPageURL() (string, error) {
 	var s struct {
 		Links []gophercloud.Link `json:"hypervisors_links"`
 	}

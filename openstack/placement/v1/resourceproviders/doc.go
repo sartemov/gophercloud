@@ -133,22 +133,16 @@ Example to update (replace) all resource provider inventories
 		panic(err)
 	}
 
-	allocationRatio := float32(16.0)
-	maxUnit := 4
-	minUnit := 1
-	reserved := 0
-	stepSize := 1
-
 	updateInventoriesOpts := resourceproviders.UpdateInventoriesOpts{
 		ResourceProviderGeneration: inventories.ResourceProviderGeneration,
-		Inventories: map[string]resourceproviders.InventoryUpdateBase{
+		Inventories: map[string]resourceproviders.Inventory{
 			"VCPU": {
 				Total:           4,
-				Reserved:        &reserved,
-				MinUnit:         &minUnit,
-				MaxUnit:         &maxUnit,
-				StepSize:        &stepSize,
-				AllocationRatio: &allocationRatio,
+				Reserved:        0,
+				MinUnit:         1,
+				MaxUnit:         4,
+				StepSize:        1,
+				AllocationRatio: 16.0,
 			},
 		},
 	}
@@ -165,22 +159,16 @@ Example to update one existing resource provider inventory
 		panic(err)
 	}
 
-	allocationRatio := float32(16.0)
-	maxUnit := 4
-	minUnit := 1
-	reserved := 0
-	stepSize := 1
-
 	// UpdateInventory updates an existing resource class inventory.
 	updateInventoryOpts := resourceproviders.UpdateInventoryOpts{
 		ResourceProviderGeneration: inventories.ResourceProviderGeneration,
-		InventoryUpdateBase: resourceproviders.InventoryUpdateBase{
+		Inventory: resourceproviders.Inventory{
 			Total:           4,
-			Reserved:        &reserved,
-			MinUnit:         &minUnit,
-			MaxUnit:         &maxUnit,
-			StepSize:        &stepSize,
-			AllocationRatio: &allocationRatio,
+			Reserved:        0,
+			MinUnit:         1,
+			MaxUnit:         4,
+			StepSize:        1,
+			AllocationRatio: 16.0,
 		},
 	}
 

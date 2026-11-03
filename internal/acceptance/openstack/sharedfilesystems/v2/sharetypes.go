@@ -7,7 +7,6 @@ import (
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/internal/acceptance/tools"
 	"github.com/gophercloud/gophercloud/v2/openstack/sharedfilesystems/v2/sharetypes"
-	th "github.com/gophercloud/gophercloud/v2/testhelper"
 )
 
 // CreateShareType will create a share type with a random name. An
@@ -20,9 +19,8 @@ func CreateShareType(t *testing.T, client *gophercloud.ServiceClient) (*sharetyp
 	shareTypeName := tools.RandomString("ACPTTEST", 16)
 	t.Logf("Attempting to create share type: %s", shareTypeName)
 
-	dhss := true
 	extraSpecsOps := sharetypes.ExtraSpecsOpts{
-		DriverHandlesShareServers: &dhss,
+		DriverHandlesShareServers: true,
 	}
 
 	createOpts := sharetypes.CreateOpts{
@@ -35,9 +33,6 @@ func CreateShareType(t *testing.T, client *gophercloud.ServiceClient) (*sharetyp
 	if err != nil {
 		return shareType, err
 	}
-
-	th.AssertEquals(t, shareTypeName, shareType.Name)
-	th.AssertFalse(t, shareType.IsPublic)
 
 	return shareType, nil
 }

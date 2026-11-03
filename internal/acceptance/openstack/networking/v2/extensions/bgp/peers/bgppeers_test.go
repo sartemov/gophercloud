@@ -34,10 +34,9 @@ func TestBGPPeerCRUD(t *testing.T) {
 
 	// Update a BGP Peer
 	newBGPPeerName := tools.RandomString("TESTACC-BGPPEER-", 10)
-	pass := tools.MakeNewPassword("")
 	updateBGPOpts := peers.UpdateOpts{
-		Name:     &newBGPPeerName,
-		Password: &pass,
+		Name:     newBGPPeerName,
+		Password: tools.MakeNewPassword(""),
 	}
 	bgpPeerUpdated, err := peers.Update(context.TODO(), client, bgpPeerGot.ID, updateBGPOpts).Extract()
 	th.AssertNoErr(t, err)

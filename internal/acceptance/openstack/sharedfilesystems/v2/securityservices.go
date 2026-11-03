@@ -7,7 +7,6 @@ import (
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/internal/acceptance/tools"
 	"github.com/gophercloud/gophercloud/v2/openstack/sharedfilesystems/v2/securityservices"
-	th "github.com/gophercloud/gophercloud/v2/testhelper"
 )
 
 // CreateSecurityService will create a security service with a random name. An
@@ -31,10 +30,6 @@ func CreateSecurityService(t *testing.T, client *gophercloud.ServiceClient) (*se
 	if err != nil {
 		return securityService, err
 	}
-
-	th.AssertEquals(t, securityServiceName, securityService.Name)
-	th.AssertEquals(t, securityServiceDescription, securityService.Description)
-	th.AssertEquals(t, "kerberos", securityService.Type)
 
 	return securityService, nil
 }

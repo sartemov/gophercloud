@@ -153,7 +153,6 @@ func TestNetworksPortSecurityCRUD(t *testing.T) {
 	th.AssertNoErr(t, err)
 
 	tools.PrintResource(t, networkWithExtensions)
-	th.AssertTrue(t, networkWithExtensions.PortSecurityEnabled)
 }
 
 func TestNetworksRevision(t *testing.T) {

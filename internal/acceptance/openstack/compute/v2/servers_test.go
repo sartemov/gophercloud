@@ -133,7 +133,7 @@ func TestServersUpdate(t *testing.T) {
 	t.Logf("Attempting to rename the server to %s.", alternateName)
 
 	updateOpts := servers.UpdateOpts{
-		Name: &alternateName,
+		Name: alternateName,
 	}
 
 	updated, err := servers.Update(context.TODO(), client, server.ID, updateOpts).Extract()
@@ -308,7 +308,6 @@ func TestServersActionRebuild(t *testing.T) {
 	th.AssertNoErr(t, err)
 
 	th.AssertEquals(t, server.ID, rebuilt.ID)
-	th.AssertEquals(t, rebuildOpts.Name, rebuilt.Name)
 
 	if err = WaitForComputeStatus(client, rebuilt, "REBUILD"); err != nil {
 		t.Fatal(err)

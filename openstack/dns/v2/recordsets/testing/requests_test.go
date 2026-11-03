@@ -63,19 +63,6 @@ func TestListByZoneAllPages(t *testing.T) {
 	th.CheckEquals(t, 2, len(allRecordSets))
 }
 
-func TestListByZoneWithAllProjects(t *testing.T) {
-	fakeServer := th.SetupHTTP()
-	defer fakeServer.Teardown()
-	HandleListByZoneAllProjectsSuccessfully(t, fakeServer)
-
-	opts := recordsets.ListOpts{AllProjects: true}
-	allPages, err := recordsets.ListByZone(client.ServiceClient(fakeServer), "2150b1bf-dee2-4221-9d85-11f7886fb15f", opts).AllPages(context.TODO())
-	th.AssertNoErr(t, err)
-	allRecordSets, err := recordsets.ExtractRecordSets(allPages)
-	th.AssertNoErr(t, err)
-	th.CheckEquals(t, 2, len(allRecordSets))
-}
-
 func TestListAll(t *testing.T) {
 	fakeServer := th.SetupHTTP()
 	defer fakeServer.Teardown()
@@ -147,7 +134,7 @@ func TestNextPageURL(t *testing.T) {
 	}
 	page.Body = body
 	expected := "http://127.0.0.1:9001/v2/zones/2150b1bf-dee2-4221-9d85-11f7886fb15f/recordsets?limit=1&marker=f7b10e9b-0cae-4a91-b162-562bc6096648"
-	actual, err := page.NextPageURL("http://127.0.0.1:9001")
+	actual, err := page.NextPageURL()
 	th.AssertNoErr(t, err)
 	th.CheckEquals(t, expected, actual)
 }
@@ -207,9 +194,22 @@ func TestDelete(t *testing.T) {
 	DeletedRecordSet.Records = []string{"10.1.0.2", "10.1.0.3"}
 	DeletedRecordSet.Version = 2
 
-	err := recordsets.Delete(context.TODO(), client.ServiceClient(fakeServer), DeletedRecordSet.ZoneID, DeletedRecordSet.ID, nil).ExtractErr()
+	err := recordsets.Delete(context.TODO(), client.ServiceClient(fakeServer), DeletedRecordSet.ZoneID, DeletedRecordSet.ID).ExtractErr()
 	th.AssertNoErr(t, err)
 	//th.CheckDeepEquals(t, &DeletedZone, actual)
+}
+
+func TestListByZoneWithAllProjects(t *testing.T) {
+	fakeServer := th.SetupHTTP()
+	defer fakeServer.Teardown()
+	HandleListByZoneAllProjectsSuccessfully(t, fakeServer)
+
+	opts := recordsets.ListOpts{AllProjects: true}
+	allPages, err := recordsets.ListByZone(client.ServiceClient(fakeServer), "2150b1bf-dee2-4221-9d85-11f7886fb15f", opts).AllPages(context.TODO())
+	th.AssertNoErr(t, err)
+	allRecordSets, err := recordsets.ExtractRecordSets(allPages)
+	th.AssertNoErr(t, err)
+	th.CheckEquals(t, 2, len(allRecordSets))
 }
 
 func TestListAllWithAllProjects(t *testing.T) {
@@ -275,6 +275,6 @@ func TestDeleteWithAllProjects(t *testing.T) {
 	defer fakeServer.Teardown()
 	HandleDeleteAllProjectsSuccessfully(t, fakeServer)
 
-	err := recordsets.Delete(context.TODO(), client.ServiceClient(fakeServer), "2150b1bf-dee2-4221-9d85-11f7886fb15f", "f7b10e9b-0cae-4a91-b162-562bc6096648", recordsets.DeleteOpts{AllProjects: true}).ExtractErr()
+	err := recordsets.DeleteWithOpts(context.TODO(), client.ServiceClient(fakeServer), "2150b1bf-dee2-4221-9d85-11f7886fb15f", "f7b10e9b-0cae-4a91-b162-562bc6096648", recordsets.DeleteOpts{AllProjects: true}).ExtractErr()
 	th.AssertNoErr(t, err)
 }

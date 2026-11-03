@@ -36,8 +36,8 @@ func messageURL(client *gophercloud.ServiceClient, queueName string, messageID s
 }
 
 // builds next page full url based on service endpoint
-func nextPageURL(endpointURL, next string) (string, error) {
-	base, err := url.Parse(endpointURL)
+func nextPageURL(serviceURL, next string) (string, error) {
+	base, err := url.Parse(serviceURL)
 	if err != nil {
 		return "", err
 	}

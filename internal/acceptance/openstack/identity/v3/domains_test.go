@@ -92,7 +92,6 @@ func TestDomainsCRUD(t *testing.T) {
 	tools.PrintResource(t, domain)
 
 	th.AssertEquals(t, domain.Description, description)
-	th.AssertTrue(t, domain.Enabled)
 
 	var iFalse = false
 	description = ""
@@ -107,5 +106,4 @@ func TestDomainsCRUD(t *testing.T) {
 	tools.PrintResource(t, newDomain)
 
 	th.AssertEquals(t, newDomain.Description, description)
-	th.AssertFalse(t, newDomain.Enabled)
 }

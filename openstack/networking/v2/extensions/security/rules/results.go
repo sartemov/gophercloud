@@ -121,7 +121,7 @@ type SecGroupRulePage struct {
 // NextPageURL is invoked when a paginated collection of security group rules has
 // reached the end of a page and the pager seeks to traverse over a new one. In
 // order to do this, it needs to construct the next page's URL.
-func (r SecGroupRulePage) NextPageURL(endpointURL string) (string, error) {
+func (r SecGroupRulePage) NextPageURL() (string, error) {
 	var s struct {
 		Links []gophercloud.Link `json:"security_group_rules_links"`
 	}

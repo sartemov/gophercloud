@@ -178,7 +178,7 @@ func TestRecordSetsListByZoneWithAllProjects(t *testing.T) {
 		}
 	}
 
-	th.AssertTrue(t, found)
+	th.AssertEquals(t, found, true)
 }
 
 func TestRecordSetsListAllWithAllProjects(t *testing.T) {
@@ -209,5 +209,5 @@ func TestRecordSetsListAllWithAllProjects(t *testing.T) {
 		}
 	}
 
-	th.AssertTrue(t, found)
+	th.AssertEquals(t, found, true)
 }

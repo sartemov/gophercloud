@@ -20,7 +20,7 @@ type Flavor struct {
 	Enabled bool `json:"enabled"`
 
 	// Flavor Profile apply to this Flavor.
-	FlavorProfileID string `json:"flavor_profile_id"`
+	FlavorProfileId string `json:"flavor_profile_id"`
 }
 
 // FlavorPage is the page returned by a pager when traversing over a
@@ -32,7 +32,7 @@ type FlavorPage struct {
 // NextPageURL is invoked when a paginated collection of flavors has
 // reached the end of a page and the pager seeks to traverse over a new one.
 // In order to do this, it needs to construct the next page's URL.
-func (r FlavorPage) NextPageURL(endpointURL string) (string, error) {
+func (r FlavorPage) NextPageURL() (string, error) {
 	var s struct {
 		Links []gophercloud.Link `json:"flavors_links"`
 	}

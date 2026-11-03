@@ -35,13 +35,10 @@ func TestConfigurationsCRUD(t *testing.T) {
 	createOpts.Datastore = &datastore
 
 	values := make(map[string]any)
-	// Using redis-based common configuration or fallback to
-	// max_connections which is a SQL common config.
-	switch choices.DBDatastoreType {
-	case "redis", "keydb", "valkey":
-		values["maxclients"] = 200
-	default:
+	if choices.DBDatastoreType == "postgresql" {
 		values["max_connections"] = 200
+	} else {
+		values["collation_server"] = "latin1_swedish_ci"
 	}
 	createOpts.Values = values
 
@@ -56,19 +53,19 @@ func TestConfigurationsCRUD(t *testing.T) {
 	}
 
 	tools.PrintResource(t, readCgroup)
-	th.AssertEquals(t, createOpts.Name, readCgroup.Name)
-	th.AssertEquals(t, createOpts.Description, readCgroup.Description)
+	th.AssertEquals(t, readCgroup.Name, createOpts.Name)
+	th.AssertEquals(t, readCgroup.Description, createOpts.Description)
 	// TODO: verify datastore
-	// th.AssertDeepEquals(t, readCgroup.Datastore, datastore)
+	//th.AssertDeepEquals(t, readCgroup.Datastore, datastore)
 
 	// Update cgroup
 	newCgroupName := "New configuration name"
-	newCgroupDescription := "Updated description"
+	newCgroupDescription := ""
 	updateOpts := configurations.UpdateOpts{
 		Name:        newCgroupName,
 		Description: &newCgroupDescription,
 	}
-	err = configurations.Replace(context.TODO(), client, cgroup.ID, updateOpts).ExtractErr()
+	err = configurations.Update(context.TODO(), client, cgroup.ID, updateOpts).ExtractErr()
 	th.AssertNoErr(t, err)
 
 	newCgroup, err := configurations.Get(context.TODO(), client, cgroup.ID).Extract()
@@ -77,8 +74,8 @@ func TestConfigurationsCRUD(t *testing.T) {
 	}
 
 	tools.PrintResource(t, newCgroup)
-	th.AssertEquals(t, newCgroupName, newCgroup.Name)
-	th.AssertEquals(t, newCgroupDescription, newCgroup.Description)
+	th.AssertEquals(t, newCgroup.Name, newCgroupName)
+	th.AssertEquals(t, newCgroup.Description, newCgroupDescription)
 
 	err = configurations.Delete(context.TODO(), client, cgroup.ID).ExtractErr()
 	if err != nil {

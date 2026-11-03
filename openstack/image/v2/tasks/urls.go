@@ -30,8 +30,8 @@ func createURL(c *gophercloud.ServiceClient) string {
 	return rootURL(c)
 }
 
-func nextPageURL(endpointURL, requestedNext string) (string, error) {
-	base, err := utils.BaseEndpoint(endpointURL)
+func nextPageURL(serviceURL, requestedNext string) (string, error) {
+	base, err := utils.BaseEndpoint(serviceURL)
 	if err != nil {
 		return "", err
 	}

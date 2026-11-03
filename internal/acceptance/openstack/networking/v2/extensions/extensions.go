@@ -6,7 +6,6 @@ import (
 
 	"github.com/gophercloud/gophercloud/v2"
 	"github.com/gophercloud/gophercloud/v2/internal/acceptance/tools"
-	"github.com/gophercloud/gophercloud/v2/internal/ptr"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/external"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/addressgroups"
 	"github.com/gophercloud/gophercloud/v2/openstack/networking/v2/extensions/security/groups"
@@ -47,7 +46,6 @@ func CreateExternalNetwork(t *testing.T, client *gophercloud.ServiceClient) (*ne
 
 	th.AssertEquals(t, networkName, network.Name)
 	th.AssertEquals(t, networkDescription, network.Description)
-	th.AssertTrue(t, network.AdminStateUp)
 
 	return network, nil
 }
@@ -125,8 +123,8 @@ func CreateSecurityGroupRule(t *testing.T, client *gophercloud.ServiceClient, se
 		Direction:    "ingress",
 		EtherType:    "IPv4",
 		SecGroupID:   secGroupID,
-		PortRangeMin: ptr.To(fromPort),
-		PortRangeMax: ptr.To(toPort),
+		PortRangeMin: fromPort,
+		PortRangeMax: toPort,
 		Protocol:     rules.ProtocolTCP,
 	}
 
@@ -139,11 +137,6 @@ func CreateSecurityGroupRule(t *testing.T, client *gophercloud.ServiceClient, se
 
 	th.AssertEquals(t, rule.SecGroupID, secGroupID)
 	th.AssertEquals(t, rule.Description, description)
-	th.AssertEquals(t, "ingress", rule.Direction)
-	th.AssertEquals(t, "IPv4", rule.EtherType)
-	th.AssertEquals(t, fromPort, rule.PortRangeMin)
-	th.AssertEquals(t, toPort, rule.PortRangeMax)
-	th.AssertEquals(t, string(rules.ProtocolTCP), rule.Protocol)
 
 	return rule, nil
 }
@@ -163,8 +156,8 @@ func CreateSecurityGroupRulesBulk(t *testing.T, client *gophercloud.ServiceClien
 			Direction:    "ingress",
 			EtherType:    "IPv4",
 			SecGroupID:   secGroupID,
-			PortRangeMin: ptr.To(fromPort),
-			PortRangeMax: ptr.To(toPort),
+			PortRangeMin: fromPort,
+			PortRangeMax: toPort,
 			Protocol:     rules.ProtocolTCP,
 		}
 	}

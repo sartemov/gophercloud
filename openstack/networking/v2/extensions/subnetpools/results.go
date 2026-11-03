@@ -73,7 +73,7 @@ type SubnetPool struct {
 
 	// DefaultQuota is the per-project quota on the prefix space
 	// that can be allocated from the subnetpool for project subnets.
-	DefaultQuota *int `json:"default_quota"`
+	DefaultQuota int `json:"default_quota"`
 
 	// TenantID is the id of the Identity project.
 	TenantID string `json:"tenant_id"`
@@ -253,7 +253,7 @@ type SubnetPoolPage struct {
 // NextPageURL is invoked when a paginated collection of subnetpools has reached
 // the end of a page and the pager seeks to traverse over a new one.
 // In order to do this, it needs to construct the next page's URL.
-func (r SubnetPoolPage) NextPageURL(endpointURL string) (string, error) {
+func (r SubnetPoolPage) NextPageURL() (string, error) {
 	var s struct {
 		Links []gophercloud.Link `json:"subnetpools_links"`
 	}
@@ -280,6 +280,6 @@ func ExtractSubnetPools(r pagination.Page) ([]SubnetPool, error) {
 	var s struct {
 		SubnetPools []SubnetPool `json:"subnetpools"`
 	}
-	err := r.(SubnetPoolPage).ExtractInto(&s)
+	err := (r.(SubnetPoolPage)).ExtractInto(&s)
 	return s.SubnetPools, err
 }

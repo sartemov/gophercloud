@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/gophercloud/gophercloud/v2/internal/ptr"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
 	"github.com/gophercloud/gophercloud/v2/pagination"
 	th "github.com/gophercloud/gophercloud/v2/testhelper"
@@ -809,7 +808,7 @@ func TestUpdateServer(t *testing.T) {
 	HandleServerUpdateSuccessfully(t, fakeServer)
 
 	client := client.ServiceClient(fakeServer)
-	actual, err := servers.Update(context.TODO(), client, "1234asdf", servers.UpdateOpts{Name: ptr.To("new-name")}).Extract()
+	actual, err := servers.Update(context.TODO(), client, "1234asdf", servers.UpdateOpts{Name: "new-name"}).Extract()
 	if err != nil {
 		t.Fatalf("Unexpected Update error: %v", err)
 	}
@@ -1201,7 +1200,8 @@ func TestUpdateServerHostname(t *testing.T) {
 	HandleServerHostnameUpdateSuccessfully(t, fakeServer)
 
 	client := client.ServiceClient(fakeServer)
-	actual, err := servers.Update(context.TODO(), client, "1234asdf", servers.UpdateOpts{Hostname: ptr.To("new-hostname")}).Extract()
+	newHostname := "new-hostname"
+	actual, err := servers.Update(context.TODO(), client, "1234asdf", servers.UpdateOpts{Hostname: &newHostname}).Extract()
 	if err != nil {
 		t.Fatalf("Unexpected Update error: %v", err)
 	}

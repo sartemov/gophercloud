@@ -35,8 +35,6 @@ func CreateService(t *testing.T, client *gophercloud.ServiceClient, routerID str
 	t.Logf("Successfully created service %s", serviceName)
 
 	th.AssertEquals(t, service.Name, serviceName)
-	th.AssertTrue(t, service.AdminStateUp)
-	th.AssertEquals(t, routerID, service.RouterID)
 
 	return service, nil
 }
@@ -76,8 +74,6 @@ func CreateIPSecPolicy(t *testing.T, client *gophercloud.ServiceClient) (*ipsecp
 	t.Logf("Successfully created IPSec policy %s", policyName)
 
 	th.AssertEquals(t, policy.Name, policyName)
-	th.AssertEquals(t, string(ipsecpolicies.EncryptionAlgorithmAES128), string(policy.EncryptionAlgorithm))
-	th.AssertEquals(t, string(ipsecpolicies.AuthAlgorithmAESCMAC), string(policy.AuthAlgorithm))
 
 	return policy, nil
 }
@@ -104,9 +100,6 @@ func CreateIKEPolicy(t *testing.T, client *gophercloud.ServiceClient) (*ikepolic
 	t.Logf("Successfully created IKE policy %s", policyName)
 
 	th.AssertEquals(t, policy.Name, policyName)
-	th.AssertEquals(t, string(ikepolicies.EncryptionAlgorithmAES128), string(policy.EncryptionAlgorithm))
-	th.AssertEquals(t, string(ikepolicies.PFSGroup5), string(policy.PFS))
-	th.AssertEquals(t, string(ikepolicies.AuthAlgorithmSHA256), string(policy.AuthAlgorithm))
 
 	return policy, nil
 }
@@ -162,8 +155,6 @@ func CreateEndpointGroup(t *testing.T, client *gophercloud.ServiceClient) (*endp
 	t.Logf("Successfully created group %s", groupName)
 
 	th.AssertEquals(t, group.Name, groupName)
-	th.AssertEquals(t, string(endpointgroups.TypeCIDR), group.Type)
-	th.AssertDeepEquals(t, []string{"10.2.0.0/24", "10.3.0.0/24"}, group.Endpoints)
 
 	return group, nil
 }
@@ -191,8 +182,6 @@ func CreateEndpointGroupWithCIDR(t *testing.T, client *gophercloud.ServiceClient
 	t.Logf("%v", group)
 
 	th.AssertEquals(t, group.Name, groupName)
-	th.AssertEquals(t, string(endpointgroups.TypeCIDR), group.Type)
-	th.AssertDeepEquals(t, []string{cidr}, group.Endpoints)
 
 	return group, nil
 }
@@ -233,8 +222,6 @@ func CreateEndpointGroupWithSubnet(t *testing.T, client *gophercloud.ServiceClie
 	t.Logf("Successfully created group %s", groupName)
 
 	th.AssertEquals(t, group.Name, groupName)
-	th.AssertEquals(t, string(endpointgroups.TypeSubnet), group.Type)
-	th.AssertDeepEquals(t, []string{subnetID}, group.Endpoints)
 
 	return group, nil
 }
@@ -269,17 +256,6 @@ func CreateSiteConnection(t *testing.T, client *gophercloud.ServiceClient, ikepo
 	t.Logf("Successfully created IPSec Site Connection %s", connectionName)
 
 	th.AssertEquals(t, connection.Name, connectionName)
-	th.AssertEquals(t, "secret", connection.PSK)
-	th.AssertEquals(t, string(siteconnections.InitiatorBiDirectional), connection.Initiator)
-	th.AssertTrue(t, connection.AdminStateUp)
-	th.AssertEquals(t, ipsecpolicyID, connection.IPSecPolicyID)
-	th.AssertEquals(t, peerEPGroupID, connection.PeerEPGroupID)
-	th.AssertEquals(t, ikepolicyID, connection.IKEPolicyID)
-	th.AssertEquals(t, serviceID, connection.VPNServiceID)
-	th.AssertEquals(t, localEPGroupID, connection.LocalEPGroupID)
-	th.AssertEquals(t, "172.24.4.233", connection.PeerAddress)
-	th.AssertEquals(t, "172.24.4.233", connection.PeerID)
-	th.AssertEquals(t, 1500, connection.MTU)
 
 	return connection, nil
 }

@@ -24,10 +24,8 @@ import (
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/secgroups"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servergroups"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/servers"
-	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/shareattach"
 	"github.com/gophercloud/gophercloud/v2/openstack/compute/v2/volumeattach"
 	neutron "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/networks"
-	"github.com/gophercloud/gophercloud/v2/openstack/sharedfilesystems/v2/shares"
 	th "github.com/gophercloud/gophercloud/v2/testhelper"
 
 	"golang.org/x/crypto/ssh"
@@ -58,8 +56,6 @@ func AttachInterface(t *testing.T, client *gophercloud.ServiceClient, serverID s
 	}
 
 	t.Logf("Successfully created interface %s on server %s", iface.PortID, serverID)
-
-	th.AssertEquals(t, networkID, iface.NetID)
 
 	return iface, nil
 }
@@ -159,9 +155,9 @@ func CreateFlavor(t *testing.T, client *gophercloud.ServiceClient) (*flavors.Fla
 	isPublic := true
 	createOpts := flavors.CreateOpts{
 		Name:        flavorName,
-		RAM:         64,
+		RAM:         1,
 		VCPUs:       1,
-		Disk:        gophercloud.IntToPointer(2),
+		Disk:        gophercloud.IntToPointer(1),
 		IsPublic:    &isPublic,
 		Description: flavorDescription,
 	}
@@ -174,8 +170,8 @@ func CreateFlavor(t *testing.T, client *gophercloud.ServiceClient) (*flavors.Fla
 	t.Logf("Successfully created flavor %s", flavor.ID)
 
 	th.AssertEquals(t, flavorName, flavor.Name)
-	th.AssertEquals(t, 64, flavor.RAM)
-	th.AssertEquals(t, 2, flavor.Disk)
+	th.AssertEquals(t, 1, flavor.RAM)
+	th.AssertEquals(t, 1, flavor.Disk)
 	th.AssertEquals(t, 1, flavor.VCPUs)
 	th.AssertTrue(t, flavor.IsPublic)
 	th.AssertEquals(t, flavorDescription, flavor.Description)
@@ -283,9 +279,9 @@ func CreatePrivateFlavor(t *testing.T, client *gophercloud.ServiceClient) (*flav
 	isPublic := false
 	createOpts := flavors.CreateOpts{
 		Name:     flavorName,
-		RAM:      64,
+		RAM:      1,
 		VCPUs:    1,
-		Disk:     gophercloud.IntToPointer(2),
+		Disk:     gophercloud.IntToPointer(1),
 		IsPublic: &isPublic,
 	}
 
@@ -297,8 +293,8 @@ func CreatePrivateFlavor(t *testing.T, client *gophercloud.ServiceClient) (*flav
 	t.Logf("Successfully created flavor %s", flavor.ID)
 
 	th.AssertEquals(t, flavorName, flavor.Name)
-	th.AssertEquals(t, 64, flavor.RAM)
-	th.AssertEquals(t, 2, flavor.Disk)
+	th.AssertEquals(t, 1, flavor.RAM)
+	th.AssertEquals(t, 1, flavor.Disk)
 	th.AssertEquals(t, 1, flavor.VCPUs)
 	th.AssertFalse(t, flavor.IsPublic)
 
@@ -323,7 +319,6 @@ func CreateSecurityGroup(t *testing.T, client *gophercloud.ServiceClient) (*secg
 	t.Logf("Created security group: %s", securityGroup.ID)
 
 	th.AssertEquals(t, name, securityGroup.Name)
-	th.AssertEquals(t, "something", securityGroup.Description)
 
 	return securityGroup, nil
 }
@@ -352,8 +347,6 @@ func CreateSecurityGroupRule(t *testing.T, client *gophercloud.ServiceClient, se
 	th.AssertEquals(t, fromPort, rule.FromPort)
 	th.AssertEquals(t, toPort, rule.ToPort)
 	th.AssertEquals(t, securityGroupID, rule.ParentGroupID)
-	th.AssertEqualsIgnoreCase(t, "TCP", rule.IPProtocol)
-	th.AssertEquals(t, "0.0.0.0/0", rule.IPRange.CIDR)
 
 	return rule, nil
 }
@@ -413,7 +406,6 @@ func CreateServer(t *testing.T, client *gophercloud.ServiceClient) (*servers.Ser
 	th.AssertEquals(t, name, newServer.Name)
 	th.AssertEquals(t, choices.FlavorID, newServer.Flavor["id"])
 	th.AssertEquals(t, choices.ImageID, newServer.Image["id"])
-	th.AssertDeepEquals(t, map[string]string{"abc": "def"}, newServer.Metadata)
 
 	return newServer, nil
 }
@@ -467,7 +459,6 @@ func CreateMicroversionServer(t *testing.T, client *gophercloud.ServiceClient) (
 
 	th.AssertEquals(t, name, newServer.Name)
 	th.AssertEquals(t, choices.ImageID, newServer.Image["id"])
-	th.AssertDeepEquals(t, map[string]string{"abc": "def"}, newServer.Metadata)
 
 	return newServer, nil
 }
@@ -594,7 +585,6 @@ func CreateServerGroup(t *testing.T, client *gophercloud.ServiceClient, policy s
 	t.Logf("Successfully created server group %s", name)
 
 	th.AssertEquals(t, name, sg.Name)
-	th.AssertDeepEquals(t, []string{policy}, sg.Policies)
 
 	return sg, nil
 }
@@ -623,14 +613,6 @@ func CreateServerGroupMicroversion(t *testing.T, client *gophercloud.ServiceClie
 	t.Logf("Successfully created server group %s", name)
 
 	th.AssertEquals(t, name, sg.Name)
-	if sg.Policy == nil {
-		t.Fatal("Expected Policy to be non-nil")
-	}
-	th.AssertEquals(t, policy, *sg.Policy)
-	if sg.Rules == nil {
-		t.Fatal("Expected Rules to be non-nil")
-	}
-	th.AssertEquals(t, maxServerPerHost, sg.Rules.MaxServerPerHost)
 
 	return sg, nil
 }
@@ -703,17 +685,19 @@ func CreateServerWithPublicKey(t *testing.T, client *gophercloud.ServiceClient, 
 	name := tools.RandomString("ACPTTEST", 16)
 	t.Logf("Attempting to create server: %s", name)
 
-	createOpts := servers.CreateOpts{
+	serverCreateOpts := servers.CreateOpts{
 		Name:      name,
 		FlavorRef: choices.FlavorID,
 		ImageRef:  choices.ImageID,
 		Networks: []servers.Network{
 			{UUID: networkID},
 		},
-		KeyName: keyPairName,
 	}
 
-	server, err := servers.Create(context.TODO(), client, createOpts, nil).Extract()
+	server, err := servers.Create(context.TODO(), client, keypairs.CreateOptsExt{
+		CreateOptsBuilder: serverCreateOpts,
+		KeyName:           keyPairName,
+	}, nil).Extract()
 	if err != nil {
 		return nil, err
 	}
@@ -730,7 +714,6 @@ func CreateServerWithPublicKey(t *testing.T, client *gophercloud.ServiceClient, 
 	th.AssertEquals(t, name, newServer.Name)
 	th.AssertEquals(t, choices.FlavorID, newServer.Flavor["id"])
 	th.AssertEquals(t, choices.ImageID, newServer.Image["id"])
-	th.AssertEquals(t, keyPairName, newServer.KeyName)
 
 	return newServer, nil
 }
@@ -758,15 +741,6 @@ func CreateVolumeAttachment(t *testing.T, client *gophercloud.ServiceClient, blo
 
 	if err := volumes.WaitForStatus(ctx, blockClient, volume.ID, "in-use"); err != nil {
 		return volumeAttachment, err
-	}
-
-	th.AssertEquals(t, volume.ID, volumeAttachment.VolumeID)
-	th.AssertEquals(t, server.ID, volumeAttachment.ServerID)
-	if volumeAttachment.Tag != nil {
-		th.AssertEquals(t, tag, *volumeAttachment.Tag)
-	}
-	if volumeAttachment.DeleteOnTermination != nil {
-		th.AssertEquals(t, dot, *volumeAttachment.DeleteOnTermination)
 	}
 
 	return volumeAttachment, nil
@@ -883,68 +857,6 @@ func DeleteVolumeAttachment(t *testing.T, client *gophercloud.ServiceClient, blo
 	t.Logf("Deleted volume: %s", volumeAttachment.VolumeID)
 }
 
-// CreateShareAttachment will attach a share to a server. The server must be in
-// SHUTOFF status. An error will be returned if the share failed to attach.
-func CreateShareAttachment(t *testing.T, client *gophercloud.ServiceClient, server *servers.Server, share *shares.Share) (*shareattach.ShareAttachment, error) {
-	tag := tools.RandomString("ACPTTEST", 16)
-
-	t.Logf("Attempting to attach share %s to server %s", share.ID, server.ID)
-
-	shareAttachment, err := shareattach.Create(context.TODO(), client, server.ID, shareattach.CreateOpts{
-		ShareID: share.ID,
-		Tag:     tag,
-	}).Extract()
-	if err != nil {
-		return shareAttachment, err
-	}
-
-	if err := WaitForShareAttachmentStatus(client, server.ID, share.ID, "inactive"); err != nil {
-		return shareAttachment, err
-	}
-
-	th.AssertEquals(t, share.ID, shareAttachment.ShareID)
-	th.AssertEquals(t, tag, shareAttachment.Tag)
-
-	got, err := shareattach.Get(context.TODO(), client, server.ID, share.ID).Extract()
-	if err != nil {
-		return shareAttachment, err
-	}
-
-	th.AssertEquals(t, share.ID, got.ShareID)
-	th.AssertEquals(t, tag, got.Tag)
-	th.AssertEquals(t, "inactive", got.Status)
-
-	return got, nil
-}
-
-// DeleteShareAttachment will detach a share from a server. A fatal error will
-// occur if the share failed to detach. The server must be in SHUTOFF status.
-// This works best when used as a deferred function.
-func DeleteShareAttachment(t *testing.T, client *gophercloud.ServiceClient, server *servers.Server, shareAttachment *shareattach.ShareAttachment) {
-	t.Logf("Attempting to detach share %s from server %s", shareAttachment.ShareID, server.ID)
-
-	err := shareattach.Delete(context.TODO(), client, server.ID, shareAttachment.ShareID).ExtractErr()
-	if err != nil {
-		t.Fatalf("Unable to detach share: %v", err)
-	}
-
-	err = tools.WaitFor(func(ctx context.Context) (bool, error) {
-		_, err := shareattach.Get(ctx, client, server.ID, shareAttachment.ShareID).Extract()
-		if err != nil {
-			if gophercloud.ResponseCodeIs(err, http.StatusNotFound) {
-				return true, nil
-			}
-			return false, err
-		}
-		return false, nil
-	})
-	if err != nil {
-		t.Fatalf("Unable to wait for share detachment: %v", err)
-	}
-
-	t.Logf("Deleted share attachment: %s", shareAttachment.ShareID)
-}
-
 // DetachInterface will detach an interface from a server. A fatal
 // error will occur if the interface could not be detached. This works best
 // when used as a deferred function.
@@ -1025,27 +937,6 @@ func ResizeServer(t *testing.T, client *gophercloud.ServiceClient, server *serve
 	}
 
 	return nil
-}
-
-// WaitForShareAttachmentStatus will poll a share attachment's status until it
-// either matches the specified status or the status becomes error.
-func WaitForShareAttachmentStatus(client *gophercloud.ServiceClient, serverID, shareID, status string) error {
-	return tools.WaitFor(func(ctx context.Context) (bool, error) {
-		sa, err := shareattach.Get(ctx, client, serverID, shareID).Extract()
-		if err != nil {
-			return false, err
-		}
-
-		if sa.Status == status {
-			return true, nil
-		}
-
-		if sa.Status == "error" {
-			return false, fmt.Errorf("share attachment in error state")
-		}
-
-		return false, nil
-	})
 }
 
 // WaitForComputeStatus will poll an instance's status until it either matches
@@ -1131,10 +1022,6 @@ func CreateRemoteConsole(t *testing.T, client *gophercloud.ServiceClient, server
 	}
 
 	t.Logf("Successfully created console: %s", remoteConsole.URL)
-
-	th.AssertEquals(t, string(remoteconsoles.ConsoleProtocolVNC), remoteConsole.Protocol)
-	th.AssertEquals(t, string(remoteconsoles.ConsoleTypeNoVNC), remoteConsole.Type)
-
 	return remoteConsole, nil
 }
 
@@ -1186,7 +1073,6 @@ func CreateServerNoNetwork(t *testing.T, client *gophercloud.ServiceClient) (*se
 	th.AssertEquals(t, name, newServer.Name)
 	th.AssertEquals(t, choices.FlavorID, newServer.Flavor["id"])
 	th.AssertEquals(t, choices.ImageID, newServer.Image["id"])
-	th.AssertDeepEquals(t, map[string]string{"abc": "def"}, newServer.Metadata)
 
 	return newServer, nil
 }

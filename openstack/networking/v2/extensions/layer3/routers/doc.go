@@ -46,9 +46,8 @@ Example to Update a Router
 		NextHop:         "10.1.0.10",
 	}}
 
-	name := "new_name"
 	updateOpts := routers.UpdateOpts{
-		Name:   &name,
+		Name:   "new_name",
 		Routes: &routes,
 	}
 
@@ -61,9 +60,8 @@ Example to Update just the Router name, keeping everything else as-is
 
 	routerID := "4e8e5957-649f-477b-9e5b-f1f75b21c03c"
 
-	name := "new_name"
 	updateOpts := routers.UpdateOpts{
-		Name: &name,
+		Name:   "new_name",
 	}
 
 	router, err := routers.Update(context.TODO(), networkClient, routerID, updateOpts).Extract()

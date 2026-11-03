@@ -44,18 +44,6 @@ const SingleFlavorBody = `
 }
 `
 
-const SingleFlavorDisabledBody = `
-{
-	"flavor": {
-		"id": "5548c807-e6e8-43d7-9ea4-b38d34dd74a0",
-		"name": "Basic",
-		"description": "A basic standalone Octavia load balancer.",
-		"enabled": false,
-		"flavor_profile_id": "9daa2768-74e7-4d13-bf5d-1b8e0dc239e1"
-	}
-}
-`
-
 const PostUpdateFlavorBody = `
 {
 	"flavor": {
@@ -74,7 +62,7 @@ var (
 		Name:            "Basic",
 		Description:     "A basic standalone Octavia load balancer.",
 		Enabled:         true,
-		FlavorProfileID: "bdba88c7-beab-4fc9-a5dd-3635de59185b",
+		FlavorProfileId: "bdba88c7-beab-4fc9-a5dd-3635de59185b",
 	}
 
 	FlavorAdvance = flavors.Flavor{
@@ -82,7 +70,7 @@ var (
 		Name:            "Advance",
 		Description:     "A advance standalone Octavia load balancer.",
 		Enabled:         false,
-		FlavorProfileID: "c221abc6-a845-45a0-925c-27110c9d7bdc",
+		FlavorProfileId: "c221abc6-a845-45a0-925c-27110c9d7bdc",
 	}
 
 	FlavorDb = flavors.Flavor{
@@ -90,15 +78,7 @@ var (
 		Name:            "Basic",
 		Description:     "A basic standalone Octavia load balancer.",
 		Enabled:         true,
-		FlavorProfileID: "9daa2768-74e7-4d13-bf5d-1b8e0dc239e1",
-	}
-
-	FlavorDisabled = flavors.Flavor{
-		ID:              "5548c807-e6e8-43d7-9ea4-b38d34dd74a0",
-		Name:            "Basic",
-		Description:     "A basic standalone Octavia load balancer.",
-		Enabled:         false,
-		FlavorProfileID: "9daa2768-74e7-4d13-bf5d-1b8e0dc239e1",
+		FlavorProfileId: "9daa2768-74e7-4d13-bf5d-1b8e0dc239e1",
 	}
 
 	FlavorUpdated = flavors.Flavor{
@@ -106,7 +86,7 @@ var (
 		Name:            "Basic v2",
 		Description:     "Rename flavor",
 		Enabled:         false,
-		FlavorProfileID: "9daa2768-74e7-4d13-bf5d-1b8e0dc239e1",
+		FlavorProfileId: "9daa2768-74e7-4d13-bf5d-1b8e0dc239e1",
 	}
 )
 
@@ -140,25 +120,6 @@ func HandleFlavorCreationSuccessfully(t *testing.T, fakeServer th.FakeServer, re
 				"name": "Basic",
 				"description": "A basic standalone Octavia load balancer.",
 				"enabled": true,
-				"flavor_profile_id": "9daa2768-74e7-4d13-bf5d-1b8e0dc239e1"
-			}
-		}`)
-
-		w.WriteHeader(http.StatusAccepted)
-		w.Header().Add("Content-Type", "application/json")
-		fmt.Fprint(w, response)
-	})
-}
-
-func HandleFlavorCreationSuccessfullyDisabled(t *testing.T, fakeServer th.FakeServer, response string) {
-	fakeServer.Mux.HandleFunc("/v2.0/lbaas/flavors", func(w http.ResponseWriter, r *http.Request) {
-		th.TestMethod(t, r, "POST")
-		th.TestHeader(t, r, "X-Auth-Token", client.TokenID)
-		th.TestJSONRequest(t, r, `{
-			"flavor": {
-				"name": "Basic",
-				"description": "A basic standalone Octavia load balancer.",
-				"enabled": false,
 				"flavor_profile_id": "9daa2768-74e7-4d13-bf5d-1b8e0dc239e1"
 			}
 		}`)

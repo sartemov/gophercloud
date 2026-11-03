@@ -30,7 +30,7 @@ type DeleteOptsBuilder interface {
 	ToRecordSetDeleteHeaders() (map[string]string, error)
 }
 
-// DeleteOpts specifies headers that may be set on a Delete request.
+// DeleteOpts specifies headers that may be set on a DeleteWithOpts request.
 type DeleteOpts struct {
 	// AllProjects header.
 	AllProjects bool `h:"X-Auth-All-Projects"`
@@ -285,7 +285,16 @@ func Update(ctx context.Context, client *gophercloud.ServiceClient, zoneID strin
 }
 
 // Delete removes an existing RecordSet.
-func Delete(ctx context.Context, client *gophercloud.ServiceClient, zoneID string, rrsetID string, opts DeleteOptsBuilder) (r DeleteResult) {
+func Delete(ctx context.Context, client *gophercloud.ServiceClient, zoneID string, rrsetID string) (r DeleteResult) {
+	resp, err := client.Delete(ctx, rrsetURL(client, zoneID, rrsetID), &gophercloud.RequestOpts{
+		OkCodes: []int{202},
+	})
+	_, r.Header, r.Err = gophercloud.ParseResponse(resp, err)
+	return
+}
+
+// DeleteWithOpts removes an existing RecordSet with additional header options.
+func DeleteWithOpts(ctx context.Context, client *gophercloud.ServiceClient, zoneID string, rrsetID string, opts DeleteOptsBuilder) (r DeleteResult) {
 	reqOpts := &gophercloud.RequestOpts{OkCodes: []int{202}}
 	if opts != nil {
 		h, err := opts.ToRecordSetDeleteHeaders()

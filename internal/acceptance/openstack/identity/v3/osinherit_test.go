@@ -83,9 +83,8 @@ func TestInheritRolesAssignToUserOnDomain(t *testing.T) {
 	th.AssertNoErr(t, err)
 	defer DeleteDomain(t, client, domain.ID)
 
-	// The role must be created in the same domain it is being assigned to.
 	roleCreateOpts := roles.CreateOpts{
-		DomainID: domain.ID,
+		DomainID: "default",
 	}
 	role, err := CreateRole(t, client, &roleCreateOpts)
 	th.AssertNoErr(t, err)
@@ -145,9 +144,8 @@ func TestInheritRolesAssignToGroupOnDomain(t *testing.T) {
 	th.AssertNoErr(t, err)
 	defer DeleteDomain(t, client, domain.ID)
 
-	// The role must be created in the same domain it is being assigned to.
 	roleCreateOpts := roles.CreateOpts{
-		DomainID: domain.ID,
+		DomainID: "default",
 	}
 	role, err := CreateRole(t, client, &roleCreateOpts)
 	th.AssertNoErr(t, err)

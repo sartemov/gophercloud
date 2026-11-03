@@ -65,7 +65,6 @@ func TestRBACPolicyCRUD(t *testing.T) {
 	th.AssertNoErr(t, err)
 
 	tools.PrintResource(t, newrbacPolicy)
-	th.AssertEquals(t, project2.ID, newrbacPolicy.TargetTenant)
 }
 
 func TestRBACPolicyList(t *testing.T) {

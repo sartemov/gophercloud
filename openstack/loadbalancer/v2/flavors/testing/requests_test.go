@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/gophercloud/gophercloud/v2/internal/ptr"
 	"github.com/gophercloud/gophercloud/v2/openstack/loadbalancer/v2/flavors"
 	"github.com/gophercloud/gophercloud/v2/pagination"
 
@@ -110,28 +109,12 @@ func TestCreateFlavor(t *testing.T) {
 	actual, err := flavors.Create(context.TODO(), fake.ServiceClient(fakeServer), flavors.CreateOpts{
 		Name:            "Basic",
 		Description:     "A basic standalone Octavia load balancer.",
-		Enabled:         ptr.To(true),
-		FlavorProfileID: "9daa2768-74e7-4d13-bf5d-1b8e0dc239e1",
+		Enabled:         true,
+		FlavorProfileId: "9daa2768-74e7-4d13-bf5d-1b8e0dc239e1",
 	}).Extract()
 	th.AssertNoErr(t, err)
 
 	th.CheckDeepEquals(t, FlavorDb, *actual)
-}
-
-func TestCreateFlavorDisabled(t *testing.T) {
-	fakeServer := th.SetupHTTP()
-	defer fakeServer.Teardown()
-	HandleFlavorCreationSuccessfullyDisabled(t, fakeServer, SingleFlavorDisabledBody)
-
-	actual, err := flavors.Create(context.TODO(), fake.ServiceClient(fakeServer), flavors.CreateOpts{
-		Name:            "Basic",
-		Description:     "A basic standalone Octavia load balancer.",
-		Enabled:         ptr.To(false),
-		FlavorProfileID: "9daa2768-74e7-4d13-bf5d-1b8e0dc239e1",
-	}).Extract()
-	th.AssertNoErr(t, err)
-
-	th.CheckDeepEquals(t, FlavorDisabled, *actual)
 }
 
 func TestRequiredCreateOpts(t *testing.T) {
@@ -174,9 +157,9 @@ func TestUpdateFlavor(t *testing.T) {
 
 	client := fake.ServiceClient(fakeServer)
 	actual, err := flavors.Update(context.TODO(), client, "5548c807-e6e8-43d7-9ea4-b38d34dd74a0", flavors.UpdateOpts{
-		Name:        ptr.To("Basic v2"),
-		Description: ptr.To("Rename flavor"),
-		Enabled:     ptr.To(true),
+		Name:        "Basic v2",
+		Description: "Rename flavor",
+		Enabled:     true,
 	}).Extract()
 	if err != nil {
 		t.Fatalf("Unexpected Update error: %v", err)

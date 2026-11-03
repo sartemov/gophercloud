@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
-	"time"
 
 	"github.com/gophercloud/gophercloud/v2"
 	fake "github.com/gophercloud/gophercloud/v2/openstack/networking/v2/common"
@@ -43,9 +42,7 @@ func TestList(t *testing.T) {
             "enabled": true,
             "action": "allow",
             "ip_version": 4,
-            "shared": false,
-            "created_at": "2019-06-04T12:28:30Z",
-            "updated_at": "2019-06-04T12:30:15Z"
+            "shared": false
         },
         {
             "protocol": "udp",
@@ -62,9 +59,7 @@ func TestList(t *testing.T) {
             "enabled": true,
             "action": "deny",
             "ip_version": 4,
-            "shared": false,
-            "created_at": "2019-06-04T12:28:30",
-            "updated_at": "2019-06-04T12:30:15"
+            "shared": false
         }
     ]
 }
@@ -98,8 +93,6 @@ func TestList(t *testing.T) {
 				Action:               string(rules.ActionAllow),
 				IPVersion:            4,
 				Shared:               false,
-				CreatedAt:            time.Date(2019, 6, 4, 12, 28, 30, 0, time.UTC),
-				UpdatedAt:            time.Date(2019, 6, 4, 12, 30, 15, 0, time.UTC),
 			},
 			{
 				Protocol:             "udp",
@@ -117,8 +110,6 @@ func TestList(t *testing.T) {
 				Action:               "deny",
 				IPVersion:            4,
 				Shared:               false,
-				CreatedAt:            time.Date(2019, 6, 4, 12, 28, 30, 0, time.UTC),
-				UpdatedAt:            time.Date(2019, 6, 4, 12, 30, 15, 0, time.UTC),
 			},
 		}
 
@@ -291,9 +282,7 @@ func TestGet(t *testing.T) {
 		"enabled": true,
 		"action": "allow",
 		"ip_version": 4,
-		"shared": false,
-		"created_at": "2019-06-04T12:28:30Z",
-		"updated_at": "2019-06-04T12:30:15Z"
+		"shared": false
 	}
 }
         `)
@@ -316,8 +305,6 @@ func TestGet(t *testing.T) {
 	th.AssertEquals(t, "allow", rule.Action)
 	th.AssertEquals(t, 4, rule.IPVersion)
 	th.AssertFalse(t, rule.Shared)
-	th.AssertEquals(t, time.Date(2019, 6, 4, 12, 28, 30, 0, time.UTC), rule.CreatedAt)
-	th.AssertEquals(t, time.Date(2019, 6, 4, 12, 30, 15, 0, time.UTC), rule.UpdatedAt)
 }
 
 func TestUpdate(t *testing.T) {

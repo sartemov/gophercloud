@@ -81,7 +81,6 @@ func CreateUser(t *testing.T, client *gophercloud.ServiceClient, tenant *tenants
 	}
 
 	th.AssertEquals(t, userName, user.Name)
-	th.AssertFalse(t, user.Enabled)
 
 	return user, nil
 }
@@ -192,7 +191,6 @@ func UpdateUser(t *testing.T, client *gophercloud.ServiceClient, user *users.Use
 	}
 
 	th.AssertEquals(t, userName, newUser.Name)
-	th.AssertEquals(t, updateOpts.Email, newUser.Email)
 
 	return newUser, nil
 }

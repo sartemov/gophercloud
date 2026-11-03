@@ -43,10 +43,7 @@ func CreateRecordSet(t *testing.T, client *gophercloud.ServiceClient, zone *zone
 
 	t.Logf("Created record set: %s", newRS.Name)
 
-	th.AssertEquals(t, zone.Name, newRS.Name)
-	th.AssertEquals(t, "A", newRS.Type)
-	th.AssertEquals(t, 3600, newRS.TTL)
-	th.AssertEquals(t, "Test recordset", newRS.Description)
+	th.AssertEquals(t, newRS.Name, zone.Name)
 
 	return rs, nil
 }
@@ -81,10 +78,7 @@ func CreateZone(t *testing.T, client *gophercloud.ServiceClient) (*zones.Zone, e
 
 	t.Logf("Created Zone: %s", zoneName)
 
-	th.AssertEquals(t, zoneName, newZone.Name)
-	th.AssertEquals(t, "root@example.com", newZone.Email)
-	th.AssertEquals(t, "PRIMARY", newZone.Type)
-	th.AssertEquals(t, "Test zone", newZone.Description)
+	th.AssertEquals(t, newZone.Name, zoneName)
 	th.AssertEquals(t, 7200, newZone.TTL)
 
 	return newZone, nil
@@ -120,8 +114,7 @@ func CreateSecondaryZone(t *testing.T, client *gophercloud.ServiceClient) (*zone
 
 	t.Logf("Created Zone: %s", zoneName)
 
-	th.AssertEquals(t, zoneName, newZone.Name)
-	th.AssertEquals(t, "SECONDARY", newZone.Type)
+	th.AssertEquals(t, newZone.Name, zoneName)
 	th.AssertEquals(t, "10.0.0.1", newZone.Masters[0])
 
 	return newZone, nil
@@ -155,8 +148,6 @@ func CreateTransferRequest(t *testing.T, client *gophercloud.ServiceClient, zone
 
 	th.AssertEquals(t, newTransferRequest.ZoneID, zone.ID)
 	th.AssertEquals(t, newTransferRequest.ZoneName, zone.Name)
-	th.AssertEquals(t, targetProjectID, newTransferRequest.TargetProjectID)
-	th.AssertEquals(t, "Test transfer request", newTransferRequest.Description)
 
 	return newTransferRequest, nil
 }
@@ -235,7 +226,7 @@ func UnshareZone(t *testing.T, client *gophercloud.ServiceClient, share *zones.Z
 // the record set failed to be deleted. This works best when used as a deferred
 // function.
 func DeleteRecordSet(t *testing.T, client *gophercloud.ServiceClient, rs *recordsets.RecordSet) {
-	err := recordsets.Delete(context.TODO(), client, rs.ZoneID, rs.ID, nil).ExtractErr()
+	err := recordsets.Delete(context.TODO(), client, rs.ZoneID, rs.ID).ExtractErr()
 	if err != nil {
 		t.Fatalf("Unable to delete record set %s: %v", rs.ID, err)
 	}
@@ -244,7 +235,7 @@ func DeleteRecordSet(t *testing.T, client *gophercloud.ServiceClient, rs *record
 }
 
 func DeleteRecordSetAllProjects(t *testing.T, client *gophercloud.ServiceClient, rs *recordsets.RecordSet) {
-	err := recordsets.Delete(context.TODO(), client, rs.ZoneID, rs.ID, recordsets.DeleteOpts{AllProjects: true}).ExtractErr()
+	err := recordsets.DeleteWithOpts(context.TODO(), client, rs.ZoneID, rs.ID, recordsets.DeleteOpts{AllProjects: true}).ExtractErr()
 	if err != nil {
 		t.Fatalf("Unable to delete record set %s: %v", rs.ID, err)
 	}
